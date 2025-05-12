@@ -31,7 +31,6 @@ always @(*) begin
         rgb = 3'b001;
     end
 
-    // 오른쪽 촉수
     else if ((x >= 400 && x <= 420) && (y >= 240 && y <= 300)) begin
         rgb = 3'b001;
     end
