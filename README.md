@@ -1,7 +1,6 @@
-# logic-design-lab-team5
+# Galaga Game on FPGA
 Term Project for SKKU Logic Design Lab ICE2005 (Galaga style game)
 
-# Galaga Game on FPGA
 
 A simplified **Galaga-style shooting game** designed and implemented using **Verilog HDL** on an **FPGA development board**.
 
@@ -35,6 +34,32 @@ A simplified **Galaga-style shooting game** designed and implemented using **Ver
 - Multiple game stages or boss enemies
 - Basic sound effects (using buzzer)
 
+---
+
+## 🧰 Hardware Specification
+
+- **FPGA**: 75,520 Logic Cell Xilinx Artix-7 Series XC7A75T FPGA Device
+- **Programming Interface**: USB to JTAG Module (connect without JTAG cable)
+- **Display & Indicators**:
+  - 16x2 Character LCD
+  - 7-Segment Display (8 digits)
+  - 16-bit LED Display
+- **Output**:
+  - RGB VGA Port
+  - Piezo Buzzer
+- **Input**:
+  - Push Buttons: 6 EA
+  - DIP Switches: 16 EA
+- **Memory**:
+  - 256MB DDR3 SDRAM
+  - 128KB SRAM
+  - 128B I2C EEPROM
+  - 128B SPI EEPROM
+- **Other Interfaces**:
+  - PMOD 3 Port
+  - Xilinx XADC Header
+  - FMC LPC Connector
+ 
 ---
 
 ## 🛠 Development
