@@ -1,0 +1,40 @@
+module monster_boss_display(
+    input [9:0] x,      // 0~639
+    input [9:0] y,      // 0~479
+    output reg [2:0] rgb  // {R,G,B}
+);
+
+always @(*) begin
+    rgb = 3'b000;
+
+    if ((x >= 300 && x <= 340) && (y >= 180 && y <= 220)) begin
+        rgb = 3'b111;
+    end
+
+    else if ((x >= 310 && x <= 330) && (y >= 230 && y <= 250)) begin
+        rgb = 3'b100;
+    end
+
+    else if ((x >= 250 && x <= 270) && (y >= 220 && y <= 240)) begin
+        rgb = 3'b100;
+    end
+
+    else if ((x >= 370 && x <= 390) && (y >= 220 && y <= 240)) begin
+        rgb = 3'b100;
+    end
+
+    else if ((x >= 260 && x <= 380) && (y >= 200 && y <= 260)) begin
+        rgb = 3'b010;
+    end
+
+    else if ((x >= 220 && x <= 240) && (y >= 240 && y <= 300)) begin
+        rgb = 3'b001;
+    end
+
+    // 오른쪽 촉수
+    else if ((x >= 400 && x <= 420) && (y >= 240 && y <= 300)) begin
+        rgb = 3'b001;
+    end
+end
+
+endmodule
