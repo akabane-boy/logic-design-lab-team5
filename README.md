@@ -1,8 +1,32 @@
 # Galaga Game on FPGA
 Term Project for SKKU Logic Design Lab ICE2005 (Galaga style game)
 
-
 A simplified **Galaga-style shooting game** designed and implemented using **Verilog HDL** on an **FPGA development board**.
+
+## Contribution
+  ### 박지훈
+ - [ ] Score display (using 7-segment LEDs or VGA text rendering)
+ - [ ] Basic sound effects (using buzzer)
+
+  ### 김범수
+
+  ### 유호선
+
+  ### 다같이
+ - [ ] Graphic Quality
+	마지막
+
+ - [ ] Player can move vertically or diagonally
+	쉬움
+ - [ ] Two or multi player mode
+	중간
+
+ - [ ] Multiple enemy/bullet types or movement patterns
+	어려움
+
+ - [ ] Multiple game stages or boss enemies
+	어려움
+
 
 ## 📺 Display
 
