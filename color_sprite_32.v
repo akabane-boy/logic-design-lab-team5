@@ -9,7 +9,7 @@
 // Description: 32x32 RGB 3-bit sprite renderer
 //////////////////////////////////////////////////////////////////////////////////
 
-module color_sprite #(
+module color_sprite_32 #(
     parameter MEM_FILE = "sprite_32x32.mem"
 )(
     input [9:0] x, y,               // Current VGA coordinates
