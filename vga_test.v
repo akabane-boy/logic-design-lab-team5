@@ -33,7 +33,7 @@ module vga_test(
     wire video_on; // pixel that actually shows on screen
     
 /**************************************************************/
-/************** 100MHz ¡æ about 25MHz divider******************/
+/************** 100MHz â†’ about 25MHz divider******************/
 /**************************************************************/
     reg [1:0] clkdiv = 0;
     wire clk25;
@@ -78,7 +78,7 @@ module vga_test(
     wire [9:0] bullet_x [0:BULLET_COUNT - 1]; // middle of the screen
     wire [9:0] bullet_y [0:BULLET_COUNT - 1]; // towards the top
     wire bullet_active [0:BULLET_COUNT - 1]; // bullet_active = 1 => outputs bullet
-    reg [BULLET_COUNT - 1:0] bullet_hit;
+    wire [BULLET_COUNT - 1:0] bullet_hit;
     
     bullet_controller #(.BULLET_COUNT(BULLET_COUNT))
     bullet_ctrl (
@@ -101,43 +101,46 @@ module vga_test(
 /********************************************************************/
 /****************************** ENEMY(TEST) *******************************/
 /********************************************************************/
-reg [9:0] enemy_x = 304;
-reg [9:0] enemy_y = 100;
-reg enemy_alive = 1;
-
+// will add enemy_controller_module
+parameter ENEMY_COUNT = 4;
+wire [9:0] enemy_x [0:ENEMY_COUNT - 1];
+wire [9:0] enemy_y [0:ENEMY_COUNT - 1];
+wire enemy_alive [0:ENEMY_COUNT - 1];
+/*
 wire [2:0] enemy_rgb;
 wire enemy_valid;
+*/
 
-color_sprite #(.MEM_FILE("enemy_sprite_data.mem"))
-    enemy_inst1 (
-    .x(x), .y(y),
-    .sprite_x(enemy_x), .sprite_y(enemy_y),
-    .rgb(enemy_rgb),
-    .valid(enemy_valid)
+enemy_controller #(
+    .ENEMY_COUNT(ENEMY_COUNT),
+    .BULLET_COUNT(BULLET_COUNT)
+) enemy_ctrl1 (
+    .clk25(clk25),
+    .reset_enemy(reset_enemy_sw),
+
+    // bullet inputs
+    .bullet_x0(bullet_x[0]), .bullet_y0(bullet_y[0]), .bullet_active0(bullet_active[0]),
+    .bullet_x1(bullet_x[1]), .bullet_y1(bullet_y[1]), .bullet_active1(bullet_active[1]),
+    .bullet_x2(bullet_x[2]), .bullet_y2(bullet_y[2]), .bullet_active2(bullet_active[2]),
+    .bullet_x3(bullet_x[3]), .bullet_y3(bullet_y[3]), .bullet_active3(bullet_active[3]),
+    .bullet_x4(bullet_x[4]), .bullet_y4(bullet_y[4]), .bullet_active4(bullet_active[4]),
+    .bullet_x5(bullet_x[5]), .bullet_y5(bullet_y[5]), .bullet_active5(bullet_active[5]),
+    .bullet_x6(bullet_x[6]), .bullet_y6(bullet_y[6]), .bullet_active6(bullet_active[6]),
+    .bullet_x7(bullet_x[7]), .bullet_y7(bullet_y[7]), .bullet_active7(bullet_active[7]),
+
+    // outputs
+    .bullet_hit(bullet_hit),
+
+    .enemy_x0(enemy_x[0]), .enemy_y0(enemy_y[0]), .enemy_alive0(enemy_alive[0]),
+    .enemy_x1(enemy_x[1]), .enemy_y1(enemy_y[1]), .enemy_alive1(enemy_alive[1]),
+    .enemy_x2(enemy_x[2]), .enemy_y2(enemy_y[2]), .enemy_alive2(enemy_alive[2]),
+    .enemy_x3(enemy_x[3]), .enemy_y3(enemy_y[3]), .enemy_alive3(enemy_alive[3])
 );
-// enemy logic (need to make another file later)
+
 integer j, k;
-always @(posedge clk25) begin
-    bullet_hit <= 0; // reset
-    
-    if (enemy_alive) begin
-        for (j = 0; j < BULLET_COUNT; j = j + 1) begin
-            if (bullet_active[j] &&
-                bullet_x[j] >= enemy_x &&
-                bullet_x[j] <  enemy_x + 32 &&
-                bullet_y[j] >= enemy_y &&
-                bullet_y[j] <  enemy_y + 32) begin
-                enemy_alive <= 0;               // enemy down
-                bullet_hit[j] <= 1;          // eliminate bullet
-            end
-        end
-    end
-    if (reset_enemy_sw) begin
-    enemy_alive <= 1;
-end
 
 
-end
+
 
 
 
@@ -148,10 +151,13 @@ end
     wire [2:0] bullet_rgb [0:BULLET_COUNT - 1];
     wire bullet_valid [0:BULLET_COUNT - 1];
     wire user_valid;
-    wire draw_enemy = enemy_alive && enemy_valid;
+    wire [2:0] enemy_rgb [0:ENEMY_COUNT - 1];
+    wire enemy_valid [0:ENEMY_COUNT - 1];
+    wire draw_enemy [0:ENEMY_COUNT - 1];
+
     
     // USER
-    color_sprite #(.MEM_FILE("user_sprite_data.mem"))
+    color_sprite_32 #(.MEM_FILE("user_sprite_data.mem"))
     user_sprite(
         .x(x), .y(y),
         .sprite_x(user_x), .sprite_y(user_y),
@@ -162,7 +168,7 @@ end
     genvar i;
     generate
         for (i = 0; i < BULLET_COUNT; i = i + 1) begin
-            color_sprite #(.MEM_FILE("bullet_sprite_data.mem"))
+            color_sprite_8 #(.MEM_FILE("bullet_sprite_data.mem"))
             bullet_inst (
                 .x(x), .y(y),
                 .sprite_x(bullet_x[i]), .sprite_y(bullet_y[i]),
@@ -186,14 +192,45 @@ end
             end
         end
     end
+    // ENEMY
+genvar e;
+generate
+    for (e = 0; e < ENEMY_COUNT; e = e + 1) begin
+        color_sprite_32 #(.MEM_FILE("enemy_sprite_data.mem")) enemy_inst (
+            .x(x), .y(y),
+            .sprite_x(enemy_x[e]),
+            .sprite_y(enemy_y[e]),
+            .rgb(enemy_rgb[e]),
+            .valid(enemy_valid[e])
+        );
+        assign draw_enemy[e] = enemy_alive[e] && enemy_valid[e];
+    end
+endgenerate
+
+reg [2:0] enemy_rgb_final = 3'b000;
+reg any_enemy_valid = 0;
+
+integer m;
+always @(*) begin
+    enemy_rgb_final = 3'b000;
+    any_enemy_valid = 0;
+
+    for (m = 0; m < ENEMY_COUNT; m = m + 1) begin
+        if (draw_enemy[m] && !any_enemy_valid) begin
+            enemy_rgb_final = enemy_rgb[m];
+            any_enemy_valid = 1;
+        end
+    end
+end
+
     
     
 /********************************************************************/
 /************************** GRAPHIC OUTPUT***************************/
 /********************************************************************/
-    wire [2:0] final_rgb = user_valid ? user_rgb : // priority user -> bullet
+    wire [2:0] final_rgb = user_valid ? user_rgb : // priority user -> bullet -> enemy
                            any_bullet_valid ? bullet_rgb_final : 
-                           draw_enemy ? enemy_rgb :
+                           any_enemy_valid ? enemy_rgb_final :
                            3'b000;
                            
     assign vga_r = video_on ? {4{final_rgb[2]}} : 4'b0000;
