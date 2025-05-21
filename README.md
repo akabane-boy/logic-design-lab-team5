@@ -128,10 +128,10 @@ Not yet.
 ---
 ## Weekly report (for attendance check)
 
-•Report project status within 1 pages •Upload i-Campus / Individual submission•Due 
-1) 5/26 ~ 23:59
-- Briefly introduce project topic / individual contribution•Due
-2) 6/2 ~ 23:59
-- Briefly report implementation status / individual contribution•Due
-3) 6/9 ~ 23:59
-- Briefly report implementation status / individual contributio
+•Report project status within 1 pages •Upload i-Campus / Individual submission
+1) Due 5/26 ~ 23:59
+- Briefly introduce project topic / individual contribution
+2) Due 6/2 ~ 23:59
+- Briefly report implementation status / individual contribution
+3) Due 6/9 ~ 23:59
+- Briefly report implementation status / individual contribution
