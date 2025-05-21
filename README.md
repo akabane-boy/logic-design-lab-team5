@@ -124,3 +124,14 @@ Not yet.
 - [ ] Bullet Generation & Collision
 - [ ] Enemy Movement
 - [ ] Final Integration
+
+---
+## Weekly report (for attendance check)
+
+•Report project status within 1 pages •Upload i-Campus / Individual submission•Due 
+1) 5/26 ~ 23:59
+- Briefly introduce project topic / individual contribution•Due
+2) 6/2 ~ 23:59
+- Briefly report implementation status / individual contribution•Due
+3) 6/9 ~ 23:59
+- Briefly report implementation status / individual contributio
