@@ -127,7 +127,6 @@ Not yet.
 
 ---
 ## Weekly report (for attendance check)
-
 •Report project status within 1 pages 
 •Upload i-Campus / Individual submission
 
