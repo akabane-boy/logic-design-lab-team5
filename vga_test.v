@@ -33,7 +33,7 @@ module vga_test(
     wire video_on; // pixel that actually shows on screen
     
 /**************************************************************/
-/************** 100MHz → about 25MHz divider******************/
+/************** 100MHz �� about 25MHz divider******************/
 /**************************************************************/
     reg [1:0] clkdiv = 0;
     wire clk25;
@@ -99,17 +99,13 @@ module vga_test(
     
     
 /********************************************************************/
-/****************************** ENEMY(TEST) *******************************/
+/****************************** ENEMY *******************************/
 /********************************************************************/
 // will add enemy_controller_module
 parameter ENEMY_COUNT = 4;
 wire [9:0] enemy_x [0:ENEMY_COUNT - 1];
 wire [9:0] enemy_y [0:ENEMY_COUNT - 1];
 wire enemy_alive [0:ENEMY_COUNT - 1];
-/*
-wire [2:0] enemy_rgb;
-wire enemy_valid;
-*/
 
 enemy_controller #(
     .ENEMY_COUNT(ENEMY_COUNT),
