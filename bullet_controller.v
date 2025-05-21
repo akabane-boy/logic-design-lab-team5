@@ -49,35 +49,35 @@ module bullet_controller #(parameter BULLET_COUNT = 8) (
 
         if (btn_fire && !prev_fire) begin
             if (!bullet_active0) begin
-                bullet_x0 <= player_x + 1;
+                bullet_x0 <= player_x + 12; // user: 32 pixel, bullet: 8 pixel => center: 12 pixel
                 bullet_y0 <= player_y;
                 bullet_active0 <= 1;
             end else if (!bullet_active1) begin
-                bullet_x1 <= player_x + 1;
+                bullet_x1 <= player_x + 12;
                 bullet_y1 <= player_y;
                 bullet_active1 <= 1;
             end else if (!bullet_active2) begin
-                bullet_x2 <= player_x + 1;
+                bullet_x2 <= player_x + 12;
                 bullet_y2 <= player_y;
                 bullet_active2 <= 1;
             end else if (!bullet_active3) begin
-                bullet_x3 <= player_x + 1;
+                bullet_x3 <= player_x + 12;
                 bullet_y3 <= player_y;
                 bullet_active3 <= 1;
             end else if (!bullet_active4) begin
-                bullet_x4 <= player_x + 1;
+                bullet_x4 <= player_x + 12;
                 bullet_y4 <= player_y;
                 bullet_active4 <= 1;
             end else if (!bullet_active5) begin
-                bullet_x5 <= player_x + 1;
+                bullet_x5 <= player_x + 12;
                 bullet_y5 <= player_y;
                 bullet_active5 <= 1;
             end else if (!bullet_active6) begin
-                bullet_x6 <= player_x + 1;
+                bullet_x6 <= player_x + 12;
                 bullet_y6 <= player_y;
                 bullet_active6 <= 1;
             end else if (!bullet_active7) begin
-                bullet_x7 <= player_x + 1;
+                bullet_x7 <= player_x + 12;
                 bullet_y7 <= player_y;
                 bullet_active7 <= 1;
             end
