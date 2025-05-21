@@ -3,6 +3,26 @@ Term Project for SKKU Logic Design Lab ICE2005 (Galaga style game) 2025-1
 
 A simplified **Galaga-style shooting game** designed and implemented using **Verilog HDL** on an **FPGA development board**.
 
+## 참고사항
+git 사용에 능숙하시면 브랜치를 만들어서 작업하시면 되고, git 배워서 하기 너무 귀찮다 하시면 아래에 있는대로 하시면 됩니다.
+1. upload-here를 제외한 파일을 다운로드 한다.
+2. 자신의 vivado src가 있는 폴더에 옮긴다.
+3. 코드 작성한다. 자신이 수정, 작성한 파일이 무엇인지 인지 필수.
+4. github에서 자신이 수정한 파일에 들어가서 코드를 다 지우고 자신이 작성한 코드를 모두 복사, 붙여넣기 후 commit한다. 새로 생성한 파일이 있을 경우 add file로 추가한다.
+5. FPGA로 자신이 확인 불가한 경우, 완료했다고 FPGA를 가지고 있는 사람에게 알린다.
+6. 확인 후 수정사항 등, 전달한다.
+7. 반복!
+
+## Contribution (for report)
+- 그래픽 담당자: *_sprite.v, vga_test.v(graphic part), *.mem 등
+- 로직 담당자: *_controller.v 등
+- 입력 및 통합 담당자: vga_test.v, vga_controller.v 등
+
+### 5/26
+어떤 것을 작업했는지 파트별로 분류 필요. ("사실과 다르더라도" 균등하게 배분)
+### 6/2
+### 6/9
+
 ## Milestone
   ### 박지훈
  - [ ] Score display (using 7-segment LEDs or VGA text rendering)
