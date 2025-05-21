@@ -1,31 +1,24 @@
 # Galaga Game on FPGA
-Term Project for SKKU Logic Design Lab ICE2005 (Galaga style game)
+Term Project for SKKU Logic Design Lab ICE2005 (Galaga style game) 2025-1
 
 A simplified **Galaga-style shooting game** designed and implemented using **Verilog HDL** on an **FPGA development board**.
 
-## Contribution
+## Milestone
   ### 박지훈
  - [ ] Score display (using 7-segment LEDs or VGA text rendering)
  - [ ] Basic sound effects (using buzzer)
 
   ### 김범수
+ - [ ] Two or multi player mode
+ - [ ] Multiple game stages or boss enemies
 
   ### 유호선
+ - [ ] Multiple enemy/bullet types or movement patterns
+ - [ ] Player can move vertically or diagonally
 
   ### 다같이
  - [ ] Graphic Quality
-	마지막
 
- - [ ] Player can move vertically or diagonally
-	쉬움
- - [ ] Two or multi player mode
-	중간
-
- - [ ] Multiple enemy/bullet types or movement patterns
-	어려움
-
- - [ ] Multiple game stages or boss enemies
-	어려움
 
 
 ## 📺 Display
@@ -95,12 +88,6 @@ A simplified **Galaga-style shooting game** designed and implemented using **Ver
 - Verilog HDL
 - Optional: Buzzer, 7-segment display
 
-### Suggested Branch Strategy
-- `main`: stable and working version
-- `feature/*`: feature development branches
-- `bugfix/*`: bug fix branches
-- `docs`: documentation updates
-
 ---
 
 ## 📂 Project Structure
@@ -115,15 +102,6 @@ Not yet.
 - `@nanhosun` (e.g., player & bullet logic)
 - `@another-id` (e.g., enemy behavior, sound effects)
 
----
-
-## 📅 Milestones
-
-- [ ] VGA Display Test
-- [ ] Player Movement
-- [ ] Bullet Generation & Collision
-- [ ] Enemy Movement
-- [ ] Final Integration
 
 ---
 ## Weekly report (for attendance check)
