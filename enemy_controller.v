@@ -48,7 +48,8 @@ module enemy_controller #(
     wire bullet_active [0:BULLET_COUNT - 1];
     reg [9:0] enemy_x [0:ENEMY_COUNT - 1];
     reg [9:0] enemy_y [0:ENEMY_COUNT - 1];
-    reg [9:0] enemy_alive [0:ENEMY_COUNT - 1];
+    reg enemy_alive [0:ENEMY_COUNT - 1];
+    reg [19:0] enemy_timer = 0; // for moving logic
 
     integer i, j;
 
@@ -71,6 +72,21 @@ module enemy_controller #(
     always @(posedge clk25) begin
         bullet_hit <= 0;
 
+        // moving logic
+        enemy_timer <= enemy_timer + 1;
+        if (enemy_timer[19]) begin
+            enemy_timer <= 0;
+            for (i = 0; i < ENEMY_COUNT; i = i + 1) begin
+                if (enemy_alive[i]) begin
+                    enemy_y[i] <= enemy_y[i] + 1; // move downward
+                end
+                if (enemy_y[i] > 479 - 32) begin
+                    //enemy_alive[i] <= 0; // delete
+                    enemy_y[i] <= 0; // start again
+                end
+            end
+        end
+
         if (reset_enemy) begin
             for (i = 0; i < ENEMY_COUNT; i = i + 1)
                 enemy_alive[i] <= 1;
@@ -90,7 +106,8 @@ module enemy_controller #(
                 end
             end
         end
-
+        
+        
         // Assign internal arrays to outputs
         enemy_x0 <= enemy_x[0]; enemy_y0 <= enemy_y[0]; enemy_alive0 <= enemy_alive[0];
         enemy_x1 <= enemy_x[1]; enemy_y1 <= enemy_y[1]; enemy_alive1 <= enemy_alive[1];
