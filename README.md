@@ -128,7 +128,9 @@ Not yet.
 ---
 ## Weekly report (for attendance check)
 
-•Report project status within 1 pages •Upload i-Campus / Individual submission
+•Report project status within 1 pages 
+•Upload i-Campus / Individual submission
+
 1) Due 5/26 ~ 23:59
 - Briefly introduce project topic / individual contribution
 2) Due 6/2 ~ 23:59
