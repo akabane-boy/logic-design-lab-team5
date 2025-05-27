@@ -23,7 +23,6 @@ module user_sprite_controller(
         if (move_counter[17]) begin
             move_counter <= 0;
 
-            // 다음 좌표 저장용 변수
             reg [9:0] next_x = sprite_x;
             reg [9:0] next_y = sprite_y;
 
