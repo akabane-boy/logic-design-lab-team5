@@ -31,7 +31,7 @@ module user_sprite_controller(
 );
     reg [19:0] move_counter = 0;
 
-    // Constants
+    // 스프라이트, 스크린 크기입력 
     localparam SPRITE_W = 32;
     localparam SPRITE_H = 32;
     localparam SCREEN_W = 640;
