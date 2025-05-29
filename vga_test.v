@@ -22,7 +22,7 @@
 
 module vga_test(
     input clk,                          // 100 MHz
-    input btn_right, btn_left, // button for move
+    input btn_right, btn_left, btn_up, btn_down, // button for move
     input btn_fire, // button for bullets
     input reset_enemy_sw, // for enemy test
     output [3:0] vga_r, vga_g, vga_b,
@@ -33,7 +33,7 @@ module vga_test(
     wire video_on; // pixel that actually shows on screen
     
 /**************************************************************/
-/************** 100MHz �� about 25MHz divider******************/
+/************** 100MHz to about 25MHz divider******************/
 /**************************************************************/
     reg [1:0] clkdiv = 0;
     wire clk25;
@@ -66,6 +66,8 @@ module vga_test(
         .clk25(clk25),
         .btn_left(btn_left),
         .btn_right(btn_right),
+        .btn_up(btn_up),
+        .btn_down(btn_up),
         .sprite_x(user_x),
         .sprite_y(user_y)
     );
