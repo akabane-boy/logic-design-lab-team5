@@ -20,9 +20,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module user_sprite_controller#(
-    parameter MEM_FILE = "user_sprite_data.mem"
-)(
+module user_sprite_controller(
     input clk25,
     input btn_left,
     input btn_right,
