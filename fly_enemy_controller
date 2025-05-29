@@ -18,9 +18,9 @@ module fly_enemy_controller (
                 fly_x[i] <= i * 38; // 32(sprite width) + 6(gap) = 38px
                 // Fly y array
                 if (i <= 8)
-                    fly_y[i] <= 0 + (8 - i) * 4;
+                    fly_y[i] <= 0 + i * 4;
                 else
-                    fly_y[i] <= 0 + (i - 8) * 4; 
+                    fly_y[i] <= 0 + (16 - i) * 4; 
                 fly_alive[i] <= 1;
             end
             fly_move_counter <= 0;
