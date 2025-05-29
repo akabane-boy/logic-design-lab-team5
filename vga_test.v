@@ -21,12 +21,13 @@
 
 
 module vga_test(
-    input clk,                          // 100 MHz
+    input clk,                         // 100 MHz
     input btn_right, btn_left, btn_up, btn_down, // button for move
     input btn_fire, // button for bullets
     input reset_enemy_sw, // for enemy test
     output [3:0] vga_r, vga_g, vga_b,
-    output hsync, vsync
+    output hsync, vsync, 
+    output buzz
 );
 
     wire [9:0] x, y; // pixels
@@ -235,6 +236,12 @@ always @(*) begin
     end
 end
 
+wire buzz_signal;
+
+game_bgm bgm_inst(.clk(clk), .reset(reset_enemy_sw), .buzz(buzz_signal));
+assign buzz = buzz_signal;
+    
+
     
     
 /********************************************************************/
@@ -248,5 +255,6 @@ end
     assign vga_r = video_on ? {4{final_rgb[2]}} : 4'b0000;
     assign vga_g = video_on ? {4{final_rgb[1]}} : 4'b0000;
     assign vga_b = video_on ? {4{final_rgb[0]}} : 4'b0000;
+    
     
 endmodule
