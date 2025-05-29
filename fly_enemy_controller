@@ -3,7 +3,7 @@
 module fly_enemy_controller (
     input clk25,
     input reset,
-    input wire [0:16] fly_alive 
+    input wire [0:16] fly_alive, 
     output reg [9:0] fly_x [0:16],
     output reg [9:0] fly_y [0:16],
     
