@@ -1,9 +1,12 @@
+`timescale 1ns / 1ps
+
 module fly_enemy_controller (
     input clk25,
     input reset,
+    input wire [0:16] fly_alive 
     output reg [9:0] fly_x [0:16],
     output reg [9:0] fly_y [0:16],
-    output reg      fly_alive [0:16]
+    
 );
 
     // counter
@@ -21,7 +24,6 @@ module fly_enemy_controller (
                     fly_y[i] <= 0 + i * 4;
                 else
                     fly_y[i] <= 0 + (16 - i) * 4; 
-                fly_alive[i] <= 1;
             end
             fly_move_counter <= 0;
         end else begin
@@ -32,8 +34,6 @@ module fly_enemy_controller (
                 for (i = 0; i < 17; i = i + 1) begin
                     if (fly_alive[i]) begin
                         fly_y[i] <= fly_y[i] + 2; // moving
-                        if (fly_y[i] >= 480)
-                            fly_alive[i] <= 0; 
                     end
                 end
             end
