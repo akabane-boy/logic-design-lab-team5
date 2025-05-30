@@ -105,7 +105,7 @@ module vga_test(
 /****************************** ENEMY *******************************/
 /********************************************************************/
 // will add enemy_controller_module
-parameter ENEMY_COUNT = 17;
+parameter ENEMY_COUNT = 23;
 wire [9:0] enemy_x [0:ENEMY_COUNT - 1];
 wire [9:0] enemy_y [0:ENEMY_COUNT - 1];
 wire enemy_alive [0:ENEMY_COUNT - 1];
@@ -146,7 +146,13 @@ enemy_controller #(
     .enemy_x13(enemy_x[13]), .enemy_y13(enemy_y[13]), .enemy_alive13(enemy_alive[13]),
     .enemy_x14(enemy_x[14]), .enemy_y14(enemy_y[14]), .enemy_alive14(enemy_alive[14]),
     .enemy_x15(enemy_x[15]), .enemy_y15(enemy_y[15]), .enemy_alive15(enemy_alive[15]),
-    .enemy_x16(enemy_x[16]), .enemy_y16(enemy_y[16]), .enemy_alive16(enemy_alive[16])
+    .enemy_x16(enemy_x[16]), .enemy_y16(enemy_y[16]), .enemy_alive16(enemy_alive[16]),
+    .enemy_x17(enemy_x[17]), .enemy_y17(enemy_y[17]), .enemy_alive17(enemy_alive[17]),
+    .enemy_x18(enemy_x[18]), .enemy_y18(enemy_y[18]), .enemy_alive18(enemy_alive[18]),
+    .enemy_x19(enemy_x[19]), .enemy_y19(enemy_y[19]), .enemy_alive19(enemy_alive[19]),
+    .enemy_x20(enemy_x[20]), .enemy_y20(enemy_y[20]), .enemy_alive20(enemy_alive[20]),
+    .enemy_x21(enemy_x[21]), .enemy_y21(enemy_y[21]), .enemy_alive21(enemy_alive[21]),
+    .enemy_x22(enemy_x[22]), .enemy_y22(enemy_y[22]), .enemy_alive22(enemy_alive[22]),
 
 );
 
