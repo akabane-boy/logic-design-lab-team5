@@ -1,23 +1,18 @@
-`timescale 1ns / 1ps
-
 module mosquito_to_enemy_adapter (
-    input  [9:0] mosquito_x [0:1],
-    input  [9:0] mosquito_y [0:1],
-    input        mosquito_alive [0:1],
+    input  [10*2-1:0] mosquito_x_flat,
+    input  [10*2-1:0] mosquito_y_flat,
+    input  [1:0]      mosquito_alive_flat,
 
-    output reg [9:0] enemy_x [21:22],
-    output reg [9:0] enemy_y [21:22],
-    output reg       enemy_alive [21:22]
+    output reg [10*2-1:0] enemy_x_flat,
+    output reg [10*2-1:0] enemy_y_flat,
+    output reg [1:0]      enemy_alive_flat
 );
-
+    integer i;
     always @(*) begin
-        enemy_x[21] = mosquito_x[0];
-        enemy_y[21] = mosquito_y[0];
-        enemy_alive[21] = mosquito_alive[0];
-
-        enemy_x[22] = mosquito_x[1];
-        enemy_y[22] = mosquito_y[1];
-        enemy_alive[22] = mosquito_alive[1];
+        for (i = 0; i < 2; i = i + 1) begin
+            enemy_x_flat[i*10 +: 10] = mosquito_x_flat[i*10 +: 10];
+            enemy_y_flat[i*10 +: 10] = mosquito_y_flat[i*10 +: 10];
+            enemy_alive_flat[i]      = mosquito_alive_flat[i];
+        end
     end
-
 endmodule

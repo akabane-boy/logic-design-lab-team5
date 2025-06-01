@@ -46,15 +46,15 @@ module user_sprite_controller(
 
             // horizontal movement 
             if (btn_left  && sprite_x > 0)
-                sprite_x = sprite_x - 1;
+                sprite_x <= sprite_x - 1;
             else if (btn_right && sprite_x < SCREEN_W - SPRITE_W)
-                sprite_x = sprite_x + 1;
+                sprite_x <= sprite_x + 1;
 
             // vertical movement
             if (btn_up && sprite_y > 0)
-                sprite_y = sprite_y - 1;
+                sprite_y <= sprite_y - 1;
             else if (btn_down && sprite_y < SCREEN_H - SPRITE_H)
-                sprite_y = sprite_y + 1;
+                sprite_y <= sprite_y + 1;
 
             // @next clock, change x and y
             /*

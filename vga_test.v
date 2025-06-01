@@ -25,6 +25,7 @@ module vga_test(
     input btn_right, btn_left, btn_up, btn_down, // button for move
     input btn_fire, // button for bullets
     input reset_enemy_sw, // for enemy test
+    input reset_spider, reset_fly, reset_mosquito, // for test
     output [3:0] vga_r, vga_g, vga_b,
     output hsync, vsync, 
     output buzz
@@ -68,7 +69,7 @@ module vga_test(
         .btn_left(btn_left),
         .btn_right(btn_right),
         .btn_up(btn_up),
-        .btn_down(btn_up),
+        .btn_down(btn_down),
         .sprite_x(user_x),
         .sprite_y(user_y)
     );
@@ -78,28 +79,34 @@ module vga_test(
 /*********************** bullet controller **************************/
 /********************************************************************/
     parameter BULLET_COUNT = 8; // maximum number of bullets in screen
-    wire [9:0] bullet_x [0:BULLET_COUNT - 1]; // middle of the screen
-    wire [9:0] bullet_y [0:BULLET_COUNT - 1]; // towards the top
-    wire bullet_active [0:BULLET_COUNT - 1]; // bullet_active = 1 => outputs bullet
+    wire [9:0] bullet_x[0:BULLET_COUNT-1];
+    wire [9:0] bullet_y[0:BULLET_COUNT-1];
+    wire bullet_active [0:BULLET_COUNT-1];
+    wire [10*BULLET_COUNT-1:0] bullet_x_flat, bullet_y_flat;
+    wire [BULLET_COUNT-1:0] bullet_active_flat;
     wire [BULLET_COUNT - 1:0] bullet_hit;
     
-    bullet_controller #(.BULLET_COUNT(BULLET_COUNT))
-    bullet_ctrl (
-        .clk25(clk25),
-        .btn_fire(btn_fire),
-        .player_x(user_x),
-        .player_y(user_y),
-        .bullet_hit(bullet_hit),
-        .bullet_x0(bullet_x[0]), .bullet_y0(bullet_y[0]), .bullet_active0(bullet_active[0]),
-        .bullet_x1(bullet_x[1]), .bullet_y1(bullet_y[1]), .bullet_active1(bullet_active[1]),
-        .bullet_x2(bullet_x[2]), .bullet_y2(bullet_y[2]), .bullet_active2(bullet_active[2]),
-        .bullet_x3(bullet_x[3]), .bullet_y3(bullet_y[3]), .bullet_active3(bullet_active[3]),
-        .bullet_x4(bullet_x[4]), .bullet_y4(bullet_y[4]), .bullet_active4(bullet_active[4]),
-        .bullet_x5(bullet_x[5]), .bullet_y5(bullet_y[5]), .bullet_active5(bullet_active[5]),
-        .bullet_x6(bullet_x[6]), .bullet_y6(bullet_y[6]), .bullet_active6(bullet_active[6]),
-        .bullet_x7(bullet_x[7]), .bullet_y7(bullet_y[7]), .bullet_active7(bullet_active[7])
+   bullet_controller #(.BULLET_COUNT(BULLET_COUNT)) bullet_ctrl (
+    .clk25(clk25),
+    .btn_fire(btn_fire),
+    .player_x(user_x),
+    .player_y(user_y),
+    .bullet_hit(bullet_hit),
+    .bullet_x_flat(bullet_x_flat),
+    .bullet_y_flat(bullet_y_flat),
+    .bullet_active_flat(bullet_active_flat)
     );
-    
+
+    genvar b;
+    generate
+        for (b = 0; b < BULLET_COUNT; b = b + 1) begin : bullet_unpack
+            assign bullet_x[b] = bullet_x_flat[b*10 +: 10];
+            assign bullet_y[b] = bullet_y_flat[b*10 +: 10];
+            assign bullet_active[b] = bullet_active_flat[b];
+        end
+    endgenerate
+
+ 
     
 /********************************************************************/
 /****************************** ENEMY *******************************/
@@ -109,64 +116,74 @@ parameter ENEMY_COUNT = 23;
 wire [9:0] enemy_x [0:ENEMY_COUNT - 1];
 wire [9:0] enemy_y [0:ENEMY_COUNT - 1];
 wire enemy_alive [0:ENEMY_COUNT - 1];
+wire [10*ENEMY_COUNT-1:0] enemy_x_flat;
+wire [10*ENEMY_COUNT-1:0] enemy_y_flat;
+wire [ENEMY_COUNT-1:0] enemy_alive_flat;
+wire [ENEMY_COUNT-1:0] enemy_alive_out_flat;
+wire [10*4-1:0] spider_x_flat, spider_y_flat;
+wire [3:0] spider_alive_flat;
+wire [10*17-1:0] fly_x_flat, fly_y_flat, fly_enemy_x_flat, fly_enemy_y_flat;
+wire [16:0] fly_alive_flat, fly_enemy_alive_flat;
+wire [10*2-1:0] mosquito_x_flat, mosquito_y_flat;
+wire [1:0] mosquito_alive_flat;
+
 
 enemy_controller #(
     .ENEMY_COUNT(ENEMY_COUNT),
     .BULLET_COUNT(BULLET_COUNT)
 ) enemy_ctrl1 (
     .clk25(clk25),
-    .reset_fly(),
-    .reset_spider(),
-    .reset_mosquito(),
-
-    // bullets input
-    .bullet_x0(bullet_x[0]), .bullet_x1(bullet_x[1]), .bullet_x2(bullet_x[2]), .bullet_x3(bullet_x[3]),
-    .bullet_x4(bullet_x[4]), .bullet_x5(bullet_x[5]), .bullet_x6(bullet_x[6]), .bullet_x7(bullet_x[7]),
-
-    .bullet_y0(bullet_y[0]), .bullet_y1(bullet_y[1]), .bullet_y2(bullet_y[2]), .bullet_y3(bullet_y[3]),
-    .bullet_y4(bullet_y[4]), .bullet_y5(bullet_y[5]), .bullet_y6(bullet_y[6]), .bullet_y7(bullet_y[7]),
-
-    .bullet_active0(bullet_active[0]), .bullet_active1(bullet_active[1]), .bullet_active2(bullet_active[2]),
-    .bullet_active3(bullet_active[3]), .bullet_active4(bullet_active[4]), .bullet_active5(bullet_active[5]),
-    .bullet_active6(bullet_active[6]), .bullet_active7(bullet_active[7]),
-
+    .reset_fly(reset_fly),
+    .reset_spider(reset_spider),
+    .reset_mosquito(reset_mosquito),
+    .bullet_x_flat(bullet_x_flat),
+    .bullet_y_flat(bullet_y_flat),
+    .bullet_active_flat(bullet_active_flat),
     .bullet_hit(bullet_hit),
-
-    // enemy inputs
-    .enemy_x0(enemy_x[0]), .enemy_x1(enemy_x[1]), .enemy_x2(enemy_x[2]), .enemy_x3(enemy_x[3]),
-    .enemy_x4(enemy_x[4]), .enemy_x5(enemy_x[5]), .enemy_x6(enemy_x[6]), .enemy_x7(enemy_x[7]),
-    .enemy_x8(enemy_x[8]), .enemy_x9(enemy_x[9]), .enemy_x10(enemy_x[10]), .enemy_x11(enemy_x[11]),
-    .enemy_x12(enemy_x[12]), .enemy_x13(enemy_x[13]), .enemy_x14(enemy_x[14]), .enemy_x15(enemy_x[15]),
-    .enemy_x16(enemy_x[16]), .enemy_x17(enemy_x[17]), .enemy_x18(enemy_x[18]), .enemy_x19(enemy_x[19]),
-    .enemy_x20(enemy_x[20]), .enemy_x21(enemy_x[21]), .enemy_x22(enemy_x[22]),
-
-    .enemy_y0(enemy_y[0]), .enemy_y1(enemy_y[1]), .enemy_y2(enemy_y[2]), .enemy_y3(enemy_y[3]),
-    .enemy_y4(enemy_y[4]), .enemy_y5(enemy_y[5]), .enemy_y6(enemy_y[6]), .enemy_y7(enemy_y[7]),
-    .enemy_y8(enemy_y[8]), .enemy_y9(enemy_y[9]), .enemy_y10(enemy_y[10]), .enemy_y11(enemy_y[11]),
-    .enemy_y12(enemy_y[12]), .enemy_y13(enemy_y[13]), .enemy_y14(enemy_y[14]), .enemy_y15(enemy_y[15]),
-    .enemy_y16(enemy_y[16]), .enemy_y17(enemy_y[17]), .enemy_y18(enemy_y[18]), .enemy_y19(enemy_y[19]),
-    .enemy_y20(enemy_y[20]), .enemy_y21(enemy_y[21]), .enemy_y22(enemy_y[22]),
-
-    .enemy_alive_in0(enemy_alive[0]), .enemy_alive_in1(enemy_alive[1]), .enemy_alive_in2(enemy_alive[2]),
-    .enemy_alive_in3(enemy_alive[3]), .enemy_alive_in4(enemy_alive[4]), .enemy_alive_in5(enemy_alive[5]),
-    .enemy_alive_in6(enemy_alive[6]), .enemy_alive_in7(enemy_alive[7]), .enemy_alive_in8(enemy_alive[8]),
-    .enemy_alive_in9(enemy_alive[9]), .enemy_alive_in10(enemy_alive[10]), .enemy_alive_in11(enemy_alive[11]),
-    .enemy_alive_in12(enemy_alive[12]), .enemy_alive_in13(enemy_alive[13]), .enemy_alive_in14(enemy_alive[14]),
-    .enemy_alive_in15(enemy_alive[15]), .enemy_alive_in16(enemy_alive[16]), .enemy_alive_in17(enemy_alive[17]),
-    .enemy_alive_in18(enemy_alive[18]), .enemy_alive_in19(enemy_alive[19]), .enemy_alive_in20(enemy_alive[20]),
-    .enemy_alive_in21(enemy_alive[21]), .enemy_alive_in22(enemy_alive[22]),
-
-    // enemy outputs
-    .enemy_alive_out0(enemy_alive[0]), .enemy_alive_out1(enemy_alive[1]), .enemy_alive_out2(enemy_alive[2]),
-    .enemy_alive_out3(enemy_alive[3]), .enemy_alive_out4(enemy_alive[4]), .enemy_alive_out5(enemy_alive[5]),
-    .enemy_alive_out6(enemy_alive[6]), .enemy_alive_out7(enemy_alive[7]), .enemy_alive_out8(enemy_alive[8]),
-    .enemy_alive_out9(enemy_alive[9]), .enemy_alive_out10(enemy_alive[10]), .enemy_alive_out11(enemy_alive[11]),
-    .enemy_alive_out12(enemy_alive[12]), .enemy_alive_out13(enemy_alive[13]), .enemy_alive_out14(enemy_alive[14]),
-    .enemy_alive_out15(enemy_alive[15]), .enemy_alive_out16(enemy_alive[16]), .enemy_alive_out17(enemy_alive[17]),
-    .enemy_alive_out18(enemy_alive[18]), .enemy_alive_out19(enemy_alive[19]), .enemy_alive_out20(enemy_alive[20]),
-    .enemy_alive_out21(enemy_alive[21]), .enemy_alive_out22(enemy_alive[22])
-
+    .enemy_x_flat(enemy_x_flat),
+    .enemy_y_flat(enemy_y_flat),
+    .enemy_alive_in_flat(enemy_alive_flat),
+    .enemy_alive_out_flat(enemy_alive_out_flat)
 );
+
+genvar u;
+generate
+    for (u = 0; u < ENEMY_COUNT; u = u + 1) begin : enemy_unpack
+        assign enemy_x[u] = enemy_x_flat[u*10 +: 10];
+        assign enemy_y[u] = enemy_y_flat[u*10 +: 10];
+        assign enemy_alive[u] = enemy_alive_out_flat[u]; // controller's output
+    end
+endgenerate
+
+// fly
+genvar f;
+generate
+    for (f = 0; f < 17; f = f + 1) begin
+        assign enemy_x_flat[f*10 +: 10] = fly_enemy_x_flat[f*10 +: 10];
+        assign enemy_y_flat[f*10 +: 10] = fly_enemy_y_flat[f*10 +: 10];
+        assign enemy_alive_flat[f] = fly_enemy_alive_flat[f];
+    end
+endgenerate
+
+// spider
+genvar s;
+generate
+    for (s = 17; s <= 20; s = s + 1) begin
+        assign enemy_x_flat[s*10 +: 10] = spider_x_flat[(s-17)*10 +: 10];
+        assign enemy_y_flat[s*10 +: 10] = spider_y_flat[(s-17)*10 +: 10];
+        assign enemy_alive_flat[s] = spider_alive_flat[s-17];
+    end
+endgenerate
+
+// mosquito
+assign enemy_x_flat[21*10 +: 10] = mosquito_x_flat[0 +: 10];
+assign enemy_y_flat[21*10 +: 10] = mosquito_y_flat[0 +: 10];
+assign enemy_alive_flat[21] = mosquito_alive_flat[0];
+
+assign enemy_x_flat[22*10 +: 10] = mosquito_x_flat[10 +: 10];
+assign enemy_y_flat[22*10 +: 10] = mosquito_y_flat[10 +: 10];
+assign enemy_alive_flat[22] = mosquito_alive_flat[1];
+
 
 integer j, k;
 
@@ -223,36 +240,101 @@ integer j, k;
             end
         end
     end
+    
     // ENEMY
-genvar e;
-generate
-    for (e = 0; e < ENEMY_COUNT; e = e + 1) begin
-        color_sprite_32 #(.MEM_FILE("enemy_sprite_data.mem")) enemy_inst (
-            .x(x), .y(y),
-            .sprite_x(enemy_x[e]),
-            .sprite_y(enemy_y[e]),
-            .rgb(enemy_rgb[e]),
-            .valid(enemy_valid[e])
-        );
-        assign draw_enemy[e] = enemy_alive[e] && enemy_valid[e];
-    end
-endgenerate
+    genvar z;
+    generate
+        for (z = 0; z < ENEMY_COUNT; z = z + 1) begin : enemy_sprite_gen
+            if (z < 17) begin
+                // Fly
+                color_sprite_32 #(.MEM_FILE("enemy_sprite_data.mem")) fly_sprite (
+                    .x(x), .y(y),
+                    .sprite_x(enemy_x[z]), .sprite_y(enemy_y[z]),
+                    .rgb(enemy_rgb[z]), .valid(enemy_valid[z])
+                );
+            end
+            else if (z < 21) begin
+                // Spider
+                color_sprite_32 #(.MEM_FILE("enemy_sprite_data.mem")) spider_sprite (
+                    .x(x), .y(y),
+                    .sprite_x(enemy_x[z]), .sprite_y(enemy_y[z]),
+                    .rgb(enemy_rgb[z]), .valid(enemy_valid[z])
+                );
+            end
+            else begin
+                // Mosquito
+                color_sprite_32 #(.MEM_FILE("enemy_sprite_data.mem")) mosquito_sprite (
+                    .x(x), .y(y),
+                    .sprite_x(enemy_x[z]), .sprite_y(enemy_y[z]),
+                    .rgb(enemy_rgb[z]), .valid(enemy_valid[z])
+                );
+            end
 
-reg [2:0] enemy_rgb_final = 3'b000;
-reg any_enemy_valid = 0;
+            assign draw_enemy[z] = enemy_alive[z] && enemy_valid[z];
+        end
+    endgenerate
 
-integer m;
-always @(*) begin
-    enemy_rgb_final = 3'b000;
-    any_enemy_valid = 0;
 
-    for (m = 0; m < ENEMY_COUNT; m = m + 1) begin
-        if (draw_enemy[m] && !any_enemy_valid) begin
-            enemy_rgb_final = enemy_rgb[m];
-            any_enemy_valid = 1;
+
+    // ENEMY GENERATION
+    reg [2:0] enemy_rgb_final = 3'b000;
+    reg any_enemy_valid = 0;
+
+    integer m;
+    always @(*) begin
+        enemy_rgb_final = 3'b000;
+        any_enemy_valid = 0;
+
+        for (m = 0; m < ENEMY_COUNT; m = m + 1) begin
+            if (draw_enemy[m] && !any_enemy_valid) begin
+                enemy_rgb_final = enemy_rgb[m];
+                any_enemy_valid = 1;
+            end
         end
     end
-end
+
+
+/***************************** SPIDER ******************************/
+// SPIDER FLATTEN
+
+// motion controller
+spider_motion_controller spider_ctrl (
+    .clk25(clk25),
+    .reset_spider(reset_spider),
+    .spider_x_flat(spider_x_flat),
+    .spider_y_flat(spider_y_flat),
+    .spider_alive_flat(spider_alive_flat)
+);
+
+
+
+/***************************** FLY ******************************/
+// FLY FLATTEN
+
+// movement
+fly_enemy_controller fly_ctrl (
+    .clk25(clk25),
+    .reset_fly(reset_fly),
+    .fly_x_flat(fly_x_flat),
+    .fly_y_flat(fly_y_flat),
+    .fly_alive_flat(fly_alive_flat)
+);
+
+
+
+/***************************** MOSQUITO ******************************/
+// MOSQUITO FLATTEN
+
+// motion controller
+mosquito_motion_controller mosquito_ctrl (
+    .clk25(clk25),
+    .reset_mosquito(reset_mosquito), 
+    .mosquito_x_flat(mosquito_x_flat),
+    .mosquito_y_flat(mosquito_y_flat),
+    .mosquito_alive_flat(mosquito_alive_flat)
+);
+
+
 
 
 /********************************************************************/
