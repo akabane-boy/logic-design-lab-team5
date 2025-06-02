@@ -120,7 +120,6 @@ integer j, k;
 
 
 
-
 /********************************************************************/
 /***************************** GRAPHIC ******************************/
 /********************************************************************/
@@ -236,6 +235,51 @@ mosquito_sprite_drawer #(
 
 
 /********************************************************************/
+/************************* SPIDER(BOSS)******************************/
+/********************************************************************/
+wire [9:0] spider_x, spider_y;
+wire spider_alive;
+wire [2:0] spider_rgb;
+wire spider_valid;
+
+spider_enemy_controller spider_ctrl (
+    .clk25(clk25),
+    .enable(enable_spider),
+    .bullet_x_flat(bullet_x_flat),
+    .bullet_y_flat(bullet_y_flat),
+    .bullet_active_flat(bullet_active_flat),
+    .spider_x(spider_x),
+    .spider_y(spider_y),
+    .spider_alive(spider_alive)
+);
+
+spider_sprite_drawer spider_draw (
+    .x(x), .y(y),
+    .spider_x(spider_x),
+    .spider_y(spider_y),
+    .spider_alive(spider_alive),
+    .rgb(spider_rgb),
+    .valid(spider_valid)
+);
+
+
+/********************************************************************/
+/*********************** STAGE CONTROLLER ***************************/
+/********************************************************************/
+wire [1:0] stage_state;
+
+stage_controller stage_ctrl (
+    .clk25(clk25),
+    .fly_alive(fly_alive[FLY_COUNT*1-1:0]),
+    .mosquito_alive(mosquito_alive[MOSQUITO_COUNT*1-1:0]),// 4-bit wire
+    .stage_state(stage_state)
+);
+
+wire enable_spider = (stage_state == 2'b10); // STAGE_BOSS
+
+
+
+/********************************************************************/
 /****************************** BUZZ ********************************/
 /********************************************************************/
 wire buzz_signal;
@@ -251,6 +295,7 @@ assign buzz = buzz_signal;
 /********************************************************************/
     wire [2:0] final_rgb = user_valid ? user_rgb : // priority user -> bullet -> enemy
                            any_bullet_valid ? bullet_rgb_final : 
+                           spider_valid ? spider_rgb :
                            mosquito_any_valid ? mosquito_rgb_final :
                            fly_any_valid ? fly_rgb_final :
                            3'b000;
