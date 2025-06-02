@@ -77,6 +77,7 @@ module vga_test(
     // STAGE
     wire [1:0] stage_state;
     wire enable_spider = (stage_state == 2'b10); // STAGE_BOSS
+    wire reset_all;
 
     // FLY
     parameter FLY_COUNT = 4;
@@ -206,7 +207,8 @@ stage_controller #(
     .fly_alive(fly_alive[FLY_COUNT*1-1:0]),
     .mosquito_alive(mosquito_alive[MOSQUITO_COUNT*1-1:0]),
     .spider_alive(spider_alive),
-    .stage_state(stage_state)
+    .stage_state(stage_state),
+    .reset_all(reset_all)
 );
 
 
@@ -218,6 +220,7 @@ fly_enemy_controller #(
     .BULLET_COUNT(BULLET_COUNT)
     ) fly_ctrl (
     .clk25(clk25),
+    .reset(reset_all),
     .bullet_x_flat(bullet_x_flat),
     .bullet_y_flat(bullet_y_flat),
     .bullet_active_flat(bullet_active_flat),
@@ -247,6 +250,7 @@ mosquito_enemy_controller #(
     .BULLET_COUNT(BULLET_COUNT)
     ) mosquito_ctrl (
     .clk25(clk25),
+    .reset(reset_all),
     .bullet_x_flat(bullet_x_flat),
     .bullet_y_flat(bullet_y_flat),
     .bullet_active_flat(bullet_active_flat),

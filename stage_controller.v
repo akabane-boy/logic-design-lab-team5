@@ -9,7 +9,8 @@ module stage_controller #(
     input [MOSQUITO_COUNT-1:0] mosquito_alive, // condition of each mosquito
     input spider_alive, // condition of BOSS
 
-    output reg [1:0] stage_state
+    output reg [1:0] stage_state,
+    output reg reset_all
 );
 
 // Define stage state
@@ -20,7 +21,7 @@ parameter STAGE_CLEAR   = 2'b11;
 
 initial stage_state = STAGE_INIT;
 
-reg [23:0] clear_counter; // 50_000_000 tick, ~2 secs wait
+reg [25:0] clear_counter; // 50_000_000 tick, ~2 secs wait
 reg spider_started; // for 1 tick delay at entering STAGE_BOSS
 
 always @(posedge clk25) begin
@@ -29,6 +30,7 @@ always @(posedge clk25) begin
             // do nothing -> go to STAGE_NORMAL
             stage_state <= STAGE_NORMAL;
             spider_started <= 0; // reset delay variable
+            reset_all <= 0;
         end
 
         STAGE_NORMAL: begin
@@ -49,8 +51,10 @@ always @(posedge clk25) begin
 
         STAGE_CLEAR: begin
             clear_counter <= clear_counter + 1;
-            if (clear_counter >= 50_000_000) // ~2 secs
+            if (clear_counter >= 50_000_000) begin // ~2 secs
                 stage_state <= STAGE_INIT;
+                reset_all <= 1;
+            end
         end
 
         default: stage_state <= STAGE_INIT;

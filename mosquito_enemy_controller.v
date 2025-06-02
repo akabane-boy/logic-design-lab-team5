@@ -5,6 +5,7 @@ module mosquito_enemy_controller #(
     parameter BULLET_COUNT = 8
 )(
     input clk25,
+    input reset,
     input [10*8-1:0] bullet_x_flat,
     input [10*8-1:0] bullet_y_flat,
     input [7:0] bullet_active_flat,
@@ -24,7 +25,6 @@ module mosquito_enemy_controller #(
     reg bullet_active[0:7];
 
     reg [19:0] move_counter = 0;
-    reg initialized = 0;
 
     always @(*) begin
         for (j = 0; j < 8; j = j + 1) begin
@@ -36,14 +36,15 @@ module mosquito_enemy_controller #(
 
     always @(posedge clk25) begin
         bullet_hit <= 0;
-        if (!initialized) begin
+
+        if (reset) begin
+            move_counter <= 0;
             for (i = 0; i < MOSQUITO_COUNT; i = i + 1) begin
                 mosquito_x[i] <= 60 + i * 120;
                 mosquito_y[i] <= 100;
                 mosquito_alive[i] <= 1;
                 mosquito_dir[i] <= 1; // start moving right
             end
-            initialized <= 1;
         end else begin
             move_counter <= move_counter + 1;
             if (move_counter == 500_000) begin
