@@ -26,8 +26,8 @@ module user_sprite_controller(
     input btn_right,
     input btn_up,
     input btn_down,
-    output reg [9:0] sprite_x,
-    output reg [9:0] sprite_y
+    output reg [9:0] sprite_x = 280,
+    output reg [9:0] sprite_y = 400
 );
     reg [19:0] move_counter = 0;
 

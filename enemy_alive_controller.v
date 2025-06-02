@@ -22,6 +22,7 @@ module enemy_controller #(
     input  [ENEMY_COUNT-1:0]     enemy_alive_in_flat,
     output reg [ENEMY_COUNT-1:0] enemy_alive_out_flat
 );
+
     reg [9:0] bullet_x [0:BULLET_COUNT-1];
     reg [9:0] bullet_y [0:BULLET_COUNT-1];
     reg       bullet_active [0:BULLET_COUNT-1];
