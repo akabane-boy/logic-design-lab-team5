@@ -1,7 +1,8 @@
 `timescale 1ns / 1ps
 
 module fly_enemy_controller #(
-    parameter FLY_COUNT = 4
+    parameter FLY_COUNT = 4,
+    parameter BULLET_COUNT = 8
 )(
     input clk25,
     input [10*8-1:0] bullet_x_flat,   // 8 bullets max
@@ -11,7 +12,8 @@ module fly_enemy_controller #(
     output reg [10*FLY_COUNT-1:0] fly_x_flat,
     output reg [10*FLY_COUNT-1:0] fly_y_flat,
     output reg [FLY_COUNT-1:0] fly_alive,
-    output reg [FLY_COUNT-1:0] fly_hit // hit event signal
+    output reg [FLY_COUNT-1:0] fly_hit, // hit event signal
+    output reg [BULLET_COUNT-1:0] bullet_hit
 );
 
     integer i, j;
@@ -31,6 +33,7 @@ module fly_enemy_controller #(
     // initial state 
     // starting position
     initial begin
+        bullet_hit = 0;
         for (i = 0; i < FLY_COUNT; i = i + 1) begin
             fly_x_flat[i*10 +: 10] = 200 + i * 50;
             fly_y_flat[i*10 +: 10] = 0;
@@ -43,6 +46,7 @@ module fly_enemy_controller #(
         move_counter <= move_counter + 1;
 
         fly_hit <= 0;
+        bullet_hit <= 0;
         
         if (move_counter[19]) begin
             move_counter <= 0;
@@ -61,6 +65,7 @@ module fly_enemy_controller #(
                                 bullet_y[j] >= fly_y_flat[i*10 +: 10] &&
                                 bullet_y[j] <  fly_y_flat[i*10 +: 10] + 32) begin
                                     fly_alive[i] <= 0;
+                                    bullet_hit[j] <= 1;
                             end
                         end
                     end

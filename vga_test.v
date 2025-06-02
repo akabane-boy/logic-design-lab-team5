@@ -29,21 +29,88 @@ module vga_test(
     input reset_spider, reset_fly, reset_mosquito, // for test
     output [3:0] vga_r, vga_g, vga_b,
     output hsync, vsync, 
-    output buzz
+    output buzz,
+    output [7:0] led
 );
 
+/********************************************************************/
+/*********************** VARIABLE DECLARATION ***********************/
+/********************************************************************/
+    // GENERAL
+    integer j, k;
+    genvar b, i;
+
+    // vga controller
     wire [9:0] x, y; // pixels
     wire video_on; // pixel that actually shows on screen
+
+    // CLOCK
+    reg [1:0] clkdiv = 0;
+    wire clk25;
+
+    // USER CONTROLLER
+    reg [9:0] user_sprite_x = 280; // 640
+    reg [9:0] user_sprite_y = 400; // 480
+    wire [9:0] user_x;
+    wire [9:0] user_y;
+
+    // BULLET CONTROLLER
+    parameter BULLET_COUNT = 8; // maximum number of bullets in screen
+    wire [9:0] bullet_x[0:BULLET_COUNT-1];
+    wire [9:0] bullet_y[0:BULLET_COUNT-1];
+    wire bullet_active [0:BULLET_COUNT-1];
+    wire [10*BULLET_COUNT-1:0] bullet_x_flat, bullet_y_flat;
+    wire [BULLET_COUNT-1:0] bullet_active_flat;
+    wire [BULLET_COUNT - 1:0] bullet_hit = bullet_hit_fly | bullet_hit_mosquito | bullet_hit_spider;
+
+    // GRAPHIC
+    // USER
+    wire [2:0] user_rgb;
+    wire user_valid;
+
+    // BULLET
+    wire [2:0] bullet_rgb [0:BULLET_COUNT - 1];
+    wire bullet_valid [0:BULLET_COUNT - 1];
+    reg [2:0] bullet_rgb_final = 3'b000;
+    reg any_bullet_valid = 0;
+
+    // STAGE
+    wire [1:0] stage_state;
+    wire enable_spider = (stage_state == 2'b10); // STAGE_BOSS
+
+    // FLY
+    parameter FLY_COUNT = 4;
+    wire [10*FLY_COUNT-1:0] fly_x_flat, fly_y_flat;
+    wire [FLY_COUNT-1:0] fly_alive;
+    wire [2:0] fly_rgb_final;
+    wire fly_any_valid;
+    // TODO: need to implement hit event->>buzzer or score
+    wire [FLY_COUNT-1:0] fly_hit;
+    wire [BULLET_COUNT-1:0] bullet_hit_fly;
+
+    // MOSQUITO
+    parameter MOSQUITO_COUNT = 8;
+    wire [10*MOSQUITO_COUNT-1:0] mosquito_x_flat, mosquito_y_flat;
+    wire [MOSQUITO_COUNT-1:0] mosquito_alive;
+    wire [2:0] mosquito_rgb_final;
+    wire mosquito_any_valid;
+    wire [BULLET_COUNT-1:0] bullet_hit_mosquito;
+
+    // SPIDER
+    wire [9:0] spider_x, spider_y;
+    wire spider_alive;
+    wire [2:0] spider_rgb;
+    wire spider_valid;
+    wire [BULLET_COUNT-1:0] bullet_hit_spider;
+
+    // SOUND
+    wire buzz_signal;
     
 /**************************************************************/
 /************** 100MHz to about 25MHz divider******************/
 /**************************************************************/
-    reg [1:0] clkdiv = 0;
-    wire clk25;
-
     always @(posedge clk) clkdiv <= clkdiv + 1;
     assign clk25 = clkdiv[1];
-
 
 /**************************************************************/
 /*************************VGA CONTROLLER***********************/
@@ -57,16 +124,9 @@ module vga_test(
         .video_on(video_on)
     );
 
-
 /********************************************************************/
 /************************ USER CONTROLLER ***************************/
 /********************************************************************/
-    reg [9:0] user_sprite_x = 280; // 640
-    reg [9:0] user_sprite_y = 400; // 480
-    
-    wire [9:0] user_x;
-    wire [9:0] user_y;
-
     user_sprite_controller user_ctl (
         .clk25(clk25),
         .btn_left(btn_left),
@@ -77,18 +137,9 @@ module vga_test(
         .sprite_y(user_y) // OUTPUT: change of position
     );
 
-    
 /********************************************************************/
 /*********************** bullet controller **************************/
 /********************************************************************/
-    parameter BULLET_COUNT = 8; // maximum number of bullets in screen
-    wire [9:0] bullet_x[0:BULLET_COUNT-1];
-    wire [9:0] bullet_y[0:BULLET_COUNT-1];
-    wire bullet_active [0:BULLET_COUNT-1];
-    wire [10*BULLET_COUNT-1:0] bullet_x_flat, bullet_y_flat;
-    wire [BULLET_COUNT-1:0] bullet_active_flat;
-    wire [BULLET_COUNT - 1:0] bullet_hit;
-    
    bullet_controller #(.BULLET_COUNT(BULLET_COUNT)) bullet_ctrl (
     .clk25(clk25),
     .btn_fire(btn_fire),
@@ -100,7 +151,6 @@ module vga_test(
     .bullet_active_flat(bullet_active_flat)
     );
 
-    genvar b;
     generate
         for (b = 0; b < BULLET_COUNT; b = b + 1) begin : bullet_unpack
             assign bullet_x[b] = bullet_x_flat[b*10 +: 10];
@@ -109,26 +159,9 @@ module vga_test(
         end
     endgenerate
 
- 
-    
-
-
-
-integer j, k;
-
-
-
-
-
 /********************************************************************/
 /***************************** GRAPHIC ******************************/
 /********************************************************************/
-    wire [2:0] user_rgb;
-    wire [2:0] bullet_rgb [0:BULLET_COUNT - 1];
-    wire bullet_valid [0:BULLET_COUNT - 1];
-    wire user_valid;
-
-    
     // USER
     color_sprite_32 #(.MEM_FILE("user_sprite_data.mem"))
     user_sprite(
@@ -136,9 +169,8 @@ integer j, k;
         .sprite_x(user_x), .sprite_y(user_y),
         .rgb(user_rgb), .valid(user_valid)
     );
+
     // BULLETS
-    // make multiple sprite using generate.
-    genvar i;
     generate
         for (i = 0; i < BULLET_COUNT; i = i + 1) begin
             color_sprite_8 #(.MEM_FILE("bullet_sprite_data.mem"))
@@ -150,9 +182,6 @@ integer j, k;
             );
         end
     endgenerate
-    
-    reg [2:0] bullet_rgb_final = 3'b000;
-    reg any_bullet_valid = 0;
     
     always @(*) begin
         bullet_rgb_final = 3'b000;
@@ -167,18 +196,26 @@ integer j, k;
     end
     
 /********************************************************************/
+/*********************** STAGE CONTROLLER ***************************/
+/********************************************************************/
+stage_controller #(
+    .FLY_COUNT(FLY_COUNT),
+    .MOSQUITO_COUNT(MOSQUITO_COUNT)
+    ) stage_ctrl (
+    .clk25(clk25),
+    .fly_alive(fly_alive[FLY_COUNT*1-1:0]),
+    .mosquito_alive(mosquito_alive[MOSQUITO_COUNT*1-1:0]),
+    .spider_alive(spider_alive),
+    .stage_state(stage_state)
+);
+
+
+/********************************************************************/
 /****************************** FLY ********************************/
 /********************************************************************/
-parameter FLY_COUNT = 4;
-wire [10*FLY_COUNT-1:0] fly_x_flat, fly_y_flat;
-wire [FLY_COUNT-1:0] fly_alive;
-wire [2:0] fly_rgb_final;
-wire fly_any_valid;
-// TODO: need to implement hit event->>buzzer or score
-wire [FLY_COUNT-1:0] fly_hit;
-
 fly_enemy_controller #(
-    .FLY_COUNT(FLY_COUNT)
+    .FLY_COUNT(FLY_COUNT),
+    .BULLET_COUNT(BULLET_COUNT)
     ) fly_ctrl (
     .clk25(clk25),
     .bullet_x_flat(bullet_x_flat),
@@ -187,7 +224,8 @@ fly_enemy_controller #(
     .fly_x_flat(fly_x_flat),
     .fly_y_flat(fly_y_flat),
     .fly_alive(fly_alive),
-    .fly_hit(fly_hit) // TODO: need to implement hit event
+    .fly_hit(fly_hit), // TODO: need to implement hit event
+    .bullet_hit(bullet_hit_fly)
 );
 
 fly_sprite_drawer #(
@@ -201,25 +239,21 @@ fly_sprite_drawer #(
     .fly_any_valid(fly_any_valid)
 );
 
-
 /********************************************************************/
 /****************************** MOSQUITO ********************************/
 /********************************************************************/
-// mosquito enemy
-parameter MOSQUITO_COUNT = 12;
-wire [10*MOSQUITO_COUNT-1:0] mosquito_x_flat, mosquito_y_flat;
-wire [MOSQUITO_COUNT-1:0] mosquito_alive;
-wire [2:0] mosquito_rgb_final;
-wire mosquito_any_valid;
-
-mosquito_enemy_controller #(.MOSQUITO_COUNT(MOSQUITO_COUNT)) mosquito_ctrl (
+mosquito_enemy_controller #(
+    .MOSQUITO_COUNT(MOSQUITO_COUNT),
+    .BULLET_COUNT(BULLET_COUNT)
+    ) mosquito_ctrl (
     .clk25(clk25),
     .bullet_x_flat(bullet_x_flat),
     .bullet_y_flat(bullet_y_flat),
     .bullet_active_flat(bullet_active_flat),
     .mosquito_x_flat(mosquito_x_flat),
     .mosquito_y_flat(mosquito_y_flat),
-    .mosquito_alive(mosquito_alive)
+    .mosquito_alive(mosquito_alive),
+    .bullet_hit(bullet_hit_mosquito)
 );
 
 mosquito_sprite_drawer #(
@@ -233,15 +267,9 @@ mosquito_sprite_drawer #(
     .mosquito_any_valid(mosquito_any_valid)
 );
 
-
 /********************************************************************/
 /************************* SPIDER(BOSS)******************************/
 /********************************************************************/
-wire [9:0] spider_x, spider_y;
-wire spider_alive;
-wire [2:0] spider_rgb;
-wire spider_valid;
-
 spider_enemy_controller spider_ctrl (
     .clk25(clk25),
     .enable(enable_spider),
@@ -250,7 +278,8 @@ spider_enemy_controller spider_ctrl (
     .bullet_active_flat(bullet_active_flat),
     .spider_x(spider_x),
     .spider_y(spider_y),
-    .spider_alive(spider_alive)
+    .spider_alive(spider_alive),
+    .bullet_hit(bullet_hit_spider)
 );
 
 spider_sprite_drawer spider_draw (
@@ -262,36 +291,14 @@ spider_sprite_drawer spider_draw (
     .valid(spider_valid)
 );
 
-
-/********************************************************************/
-/*********************** STAGE CONTROLLER ***************************/
-/********************************************************************/
-wire [1:0] stage_state;
-
-stage_controller stage_ctrl (
-    .clk25(clk25),
-    .fly_alive(fly_alive[FLY_COUNT*1-1:0]),
-    .mosquito_alive(mosquito_alive[MOSQUITO_COUNT*1-1:0]),// 4-bit wire
-    .stage_state(stage_state)
-);
-
-wire enable_spider = (stage_state == 2'b10); // STAGE_BOSS
-
-
-
 /********************************************************************/
 /****************************** BUZZ ********************************/
 /********************************************************************/
-wire buzz_signal;
-
 game_bgm bgm_inst(.clk(clk), .reset(buzz_sw), .buzz(buzz_signal));
 assign buzz = buzz_signal;
 
-
-    
-    
 /********************************************************************/
-/************************** GRAPHIC OUTPUT***************************/
+/************************** VGA OUTPUT ******************************/
 /********************************************************************/
     wire [2:0] final_rgb = user_valid ? user_rgb : // priority user -> bullet -> enemy
                            any_bullet_valid ? bullet_rgb_final : 
@@ -304,5 +311,11 @@ assign buzz = buzz_signal;
     assign vga_g = video_on ? {4{final_rgb[1]}} : 4'b0000;
     assign vga_b = video_on ? {4{final_rgb[0]}} : 4'b0000;
     
+    // for debugging
+    assign led[1:0] = stage_state; // 00: INIT, 01: NORMAL, 10: BOSS, 11: CLEAR
+    assign led[2] = (fly_alive == {FLY_COUNT{1'b0}});
+    assign led[3] = (mosquito_alive == {MOSQUITO_COUNT{1'b0}});
+    assign led[4] = spider_alive;
+
     
 endmodule

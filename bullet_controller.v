@@ -51,9 +51,15 @@ always @(posedge clk25) begin
         end
     end
 
-    bullet_timer <= bullet_timer + 1;
+    // CHECK bullet hits
+    for (i = 0; i < BULLET_COUNT; i = i + 1) begin
+        if (bullet_hit[i]) begin
+            bullet_active_flat[i] <= 0;
+        end
+    end
 
-    // Bullet movement
+    // movement
+    bullet_timer <= bullet_timer + 1;
     if (bullet_timer[16]) begin
         bullet_timer <= 0;
         for (i = 0; i < BULLET_COUNT; i = i + 1) begin
@@ -66,11 +72,5 @@ always @(posedge clk25) begin
         end
     end
 
-    // Bullet hit
-    for (i = 0; i < BULLET_COUNT; i = i + 1) begin
-        if (bullet_hit[i]) begin
-            bullet_active_flat[i] <= 0;
-        end
-    end
 end
 endmodule

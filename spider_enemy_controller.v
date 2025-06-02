@@ -10,7 +10,8 @@ module spider_enemy_controller (
 
     output reg [9:0] spider_x,
     output reg [9:0] spider_y,
-    output reg spider_alive
+    output reg spider_alive,
+    output reg [7:0] bullet_hit
 );
 
     reg [3:0] spider_hp; // HP variable
@@ -30,6 +31,8 @@ module spider_enemy_controller (
     end
 
     always @(posedge clk25) begin
+        bullet_hit <= 8'b0; // reset hit signal
+
         if (!enable) begin
             // spider not yet spawned
             // INITIAL condition
@@ -72,18 +75,20 @@ module spider_enemy_controller (
                     bullet_x[i] + 8 >= spider_x &&
                     bullet_x[i] <= spider_x + 31 &&
                     bullet_y[i] + 8 >= spider_y &&
-                    bullet_y[i] <= spider_y + 31) begin
+                    bullet_y[i] <= spider_y + 31) begin // if bullets[i] hits enemy?
+                    bullet_hit[i] <= 1; // hit!
+
                     // SPIDER IS ALIVE -> decrease hp
-                    if (spider_hp > 0)
+                    if (spider_hp > 1) begin
                         spider_hp <= spider_hp - 1;
+                    end
                     // SPIDER HP = 1 -> SPIDER DEAD
-                    if (spider_hp == 1)
+                    else begin
+                        spider_hp <= 0;
                         spider_alive <= 0;
+                    end
                 end
             end
-
-            // HP logic
-
         end
     end
 

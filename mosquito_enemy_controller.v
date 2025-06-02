@@ -1,7 +1,8 @@
 `timescale 1ns / 1ps
 
 module mosquito_enemy_controller #(
-    parameter MOSQUITO_COUNT = 4
+    parameter MOSQUITO_COUNT = 4,
+    parameter BULLET_COUNT = 8
 )(
     input clk25,
     input [10*8-1:0] bullet_x_flat,
@@ -10,7 +11,8 @@ module mosquito_enemy_controller #(
 
     output reg [10*MOSQUITO_COUNT-1:0] mosquito_x_flat,
     output reg [10*MOSQUITO_COUNT-1:0] mosquito_y_flat,
-    output reg [MOSQUITO_COUNT-1:0] mosquito_alive
+    output reg [MOSQUITO_COUNT-1:0] mosquito_alive,
+    output reg [BULLET_COUNT-1:0] bullet_hit
 );
 
     integer i, j;
@@ -33,6 +35,7 @@ module mosquito_enemy_controller #(
     end
 
     always @(posedge clk25) begin
+        bullet_hit <= 0;
         if (!initialized) begin
             for (i = 0; i < MOSQUITO_COUNT; i = i + 1) begin
                 mosquito_x[i] <= 60 + i * 120;
@@ -67,6 +70,7 @@ module mosquito_enemy_controller #(
                                 bullet_y[j] + 8 >= mosquito_y[i] &&
                                 bullet_y[j] <= mosquito_y[i] + 31) begin
                                 mosquito_alive[i] <= 0;
+                                bullet_hit[j] <= 1;
                             end
                         end
                     end
