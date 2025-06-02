@@ -170,7 +170,7 @@ integer j, k;
 /********************************************************************/
 /****************************** FLY ********************************/
 /********************************************************************/
-parameter FLY_COUNT = 12;
+parameter FLY_COUNT = 4;
 wire [10*FLY_COUNT-1:0] fly_x_flat, fly_y_flat;
 wire [FLY_COUNT-1:0] fly_alive;
 wire [2:0] fly_rgb_final;
@@ -203,6 +203,36 @@ fly_sprite_drawer #(
 );
 
 
+/********************************************************************/
+/****************************** MOSQUITO ********************************/
+/********************************************************************/
+// mosquito enemy
+parameter MOSQUITO_COUNT = 12;
+wire [10*MOSQUITO_COUNT-1:0] mosquito_x_flat, mosquito_y_flat;
+wire [MOSQUITO_COUNT-1:0] mosquito_alive;
+wire [2:0] mosquito_rgb_final;
+wire mosquito_any_valid;
+
+mosquito_enemy_controller #(.MOSQUITO_COUNT(MOSQUITO_COUNT)) mosquito_ctrl (
+    .clk25(clk25),
+    .bullet_x_flat(bullet_x_flat),
+    .bullet_y_flat(bullet_y_flat),
+    .bullet_active_flat(bullet_active_flat),
+    .mosquito_x_flat(mosquito_x_flat),
+    .mosquito_y_flat(mosquito_y_flat),
+    .mosquito_alive(mosquito_alive)
+);
+
+mosquito_sprite_drawer #(
+    .MOSQUITO_COUNT(MOSQUITO_COUNT)
+    ) mosquito_drawer (
+    .x(x), .y(y),
+    .mosquito_x_flat(mosquito_x_flat),
+    .mosquito_y_flat(mosquito_y_flat),
+    .mosquito_alive(mosquito_alive),
+    .mosquito_rgb_final(mosquito_rgb_final),
+    .mosquito_any_valid(mosquito_any_valid)
+);
 
 
 /********************************************************************/
@@ -221,6 +251,7 @@ assign buzz = buzz_signal;
 /********************************************************************/
     wire [2:0] final_rgb = user_valid ? user_rgb : // priority user -> bullet -> enemy
                            any_bullet_valid ? bullet_rgb_final : 
+                           mosquito_any_valid ? mosquito_rgb_final :
                            fly_any_valid ? fly_rgb_final :
                            3'b000;
                            

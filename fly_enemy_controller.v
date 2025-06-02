@@ -1,6 +1,5 @@
 `timescale 1ns / 1ps
 
-// TODO: 계속 반복되는데 한번만 내려오게, 속도 더 느리게 
 module fly_enemy_controller #(
     parameter FLY_COUNT = 4
 )(
@@ -30,9 +29,10 @@ module fly_enemy_controller #(
     end
 
     // initial state 
+    // starting position
     initial begin
         for (i = 0; i < FLY_COUNT; i = i + 1) begin
-            fly_x_flat[i*10 +: 10] = 100 + i * 40;
+            fly_x_flat[i*10 +: 10] = 200 + i * 50;
             fly_y_flat[i*10 +: 10] = 0;
             fly_alive[i] = 1;
         end
@@ -44,7 +44,7 @@ module fly_enemy_controller #(
 
         fly_hit <= 0;
         
-        if (move_counter[17]) begin
+        if (move_counter[19]) begin
             move_counter <= 0;
             for (i = 0; i < FLY_COUNT; i = i + 1) begin
                 if (fly_alive[i]) begin
