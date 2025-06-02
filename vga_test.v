@@ -111,86 +111,8 @@ module vga_test(
 
  
     
-/********************************************************************/
-/****************************** ENEMY *******************************/
-/********************************************************************/
-// will add enemy_controller_module
-parameter ENEMY_COUNT = 23;
-wire [9:0] enemy_x [0:ENEMY_COUNT - 1];
-wire [9:0] enemy_y [0:ENEMY_COUNT - 1];
-wire enemy_alive [0:ENEMY_COUNT - 1];
-wire [10*ENEMY_COUNT-1:0] enemy_x_flat;
-wire [10*ENEMY_COUNT-1:0] enemy_y_flat;
-wire [ENEMY_COUNT-1:0] enemy_alive_flat;
-wire [ENEMY_COUNT-1:0] enemy_alive_out_flat;
-wire [10*4-1:0] spider_x_flat, spider_y_flat;
-wire [3:0] spider_alive_flat;
-wire [10*17-1:0] fly_x_flat, fly_y_flat, fly_enemy_x_flat, fly_enemy_y_flat;
-wire [16:0] fly_alive_flat, fly_enemy_alive_flat;
-wire [10*2-1:0] mosquito_x_flat, mosquito_y_flat;
-wire [1:0] mosquito_alive_flat;
-
-assign fly_enemy_alive_flat = fly_alive_flat;
 
 
-enemy_controller #(
-    .ENEMY_COUNT(ENEMY_COUNT),
-    .BULLET_COUNT(BULLET_COUNT)
-) enemy_ctrl1 (
-    .clk25(clk25),
-    .reset_fly(reset_fly),
-    .reset_spider(reset_spider),
-    .reset_mosquito(reset_mosquito),
-    .bullet_x_flat(bullet_x_flat),
-    .bullet_y_flat(bullet_y_flat),
-    .bullet_active_flat(bullet_active_flat),
-    .bullet_hit(bullet_hit),
-    .enemy_x_flat(enemy_x_flat),
-    .enemy_y_flat(enemy_y_flat),
-    .enemy_alive_in_flat(enemy_alive_flat),
-    .enemy_alive_out_flat(enemy_alive_out_flat)
-);
-
-
-// fly
-genvar f;
-generate
-    for (f = 0; f < 17; f = f + 1) begin
-        assign enemy_x_flat[f*10 +: 10] = fly_enemy_x_flat[f*10 +: 10];
-        assign enemy_y_flat[f*10 +: 10] = fly_enemy_y_flat[f*10 +: 10];
-        assign enemy_alive_flat[f] = fly_enemy_alive_flat[f] & enable_enemy[f]; // also for stage ctl
-    end
-endgenerate
-
-// spider
-genvar s;
-generate
-    for (s = 17; s <= 20; s = s + 1) begin
-        assign enemy_x_flat[s*10 +: 10] = spider_x_flat[(s-17)*10 +: 10];
-        assign enemy_y_flat[s*10 +: 10] = spider_y_flat[(s-17)*10 +: 10];
-        assign enemy_alive_flat[s] = spider_alive_flat[s-17] & enable_enemy[s]; // also for stage ctl
-    end
-endgenerate
-
-// mosquito
-assign enemy_x_flat[21*10 +: 10] = mosquito_x_flat[0 +: 10];
-assign enemy_y_flat[21*10 +: 10] = mosquito_y_flat[0 +: 10];
-assign enemy_alive_flat[21] = mosquito_alive_flat[0] & enable_enemy[21]; // also for stage ctl
-
-assign enemy_x_flat[22*10 +: 10] = mosquito_x_flat[10 +: 10];
-assign enemy_y_flat[22*10 +: 10] = mosquito_y_flat[10 +: 10];
-assign enemy_alive_flat[22] = mosquito_alive_flat[1] & enable_enemy[22];
-
-
-// UNPACK
-genvar u;
-generate
-    for (u = 0; u < ENEMY_COUNT; u = u + 1) begin : enemy_unpack
-        assign enemy_x[u] = enemy_x_flat[u*10 +: 10];
-        assign enemy_y[u] = enemy_y_flat[u*10 +: 10];
-        assign enemy_alive[u] = enemy_alive_out_flat[u]; // controller's output
-    end
-endgenerate
 
 integer j, k;
 
@@ -206,9 +128,6 @@ integer j, k;
     wire [2:0] bullet_rgb [0:BULLET_COUNT - 1];
     wire bullet_valid [0:BULLET_COUNT - 1];
     wire user_valid;
-    wire [2:0] enemy_rgb [0:ENEMY_COUNT - 1];
-    wire enemy_valid [0:ENEMY_COUNT - 1]; // doesn't work??
-    wire draw_enemy [0:ENEMY_COUNT - 1];
 
     
     // USER
@@ -248,96 +167,39 @@ integer j, k;
         end
     end
     
-    // ENEMY
-    genvar z;
-    generate
-        for (z = 0; z < ENEMY_COUNT; z = z + 1) begin : enemy_sprite_gen
-            if (z < 17) begin
-                // Fly
-                color_sprite_32 #(.MEM_FILE("enemy_sprite_data.mem")) fly_sprite (
-                    .x(x), .y(y),
-                    .sprite_x(enemy_x[z]), .sprite_y(enemy_y[z]),
-                    .rgb(enemy_rgb[z]), .valid(enemy_valid[z])
-                );
-            end
-            else if (z < 21) begin
-                // Spider
-                color_sprite_32 #(.MEM_FILE("enemy_sprite_data.mem")) spider_sprite (
-                    .x(x), .y(y),
-                    .sprite_x(enemy_x[z]), .sprite_y(enemy_y[z]),
-                    .rgb(enemy_rgb[z]), .valid(enemy_valid[z])
-                );
-            end
-            else begin
-                // Mosquito
-                color_sprite_32 #(.MEM_FILE("enemy_sprite_data.mem")) mosquito_sprite (
-                    .x(x), .y(y),
-                    .sprite_x(enemy_x[z]), .sprite_y(enemy_y[z]),
-                    .rgb(enemy_rgb[z]), .valid(enemy_valid[z])
-                );
-            end
+/********************************************************************/
+/****************************** FLY ********************************/
+/********************************************************************/
+parameter FLY_COUNT = 12;
+wire [10*FLY_COUNT-1:0] fly_x_flat, fly_y_flat;
+wire [FLY_COUNT-1:0] fly_alive;
+wire [2:0] fly_rgb_final;
+wire fly_any_valid;
+// TODO: need to implement hit event->>buzzer or score
+wire [FLY_COUNT-1:0] fly_hit;
 
-            assign draw_enemy[z] = enemy_alive[z] && enemy_valid[z];
-        end
-    endgenerate
-
-
-
-    // ENEMY GENERATION
-    reg [2:0] enemy_rgb_final = 3'b000;
-    reg any_enemy_valid = 0;
-
-    integer m;
-    always @(*) begin
-        enemy_rgb_final = 3'b000;
-        any_enemy_valid = 0;
-
-        for (m = 0; m < ENEMY_COUNT; m = m + 1) begin
-            if (draw_enemy[m] && !any_enemy_valid) begin
-                enemy_rgb_final = enemy_rgb[m];
-                any_enemy_valid = 1;
-            end
-        end
-    end
-
-
-/***************************** SPIDER ******************************/
-// SPIDER FLATTEN
-
-// motion controller
-spider_motion_controller spider_ctrl (
+fly_enemy_controller #(
+    .FLY_COUNT(FLY_COUNT)
+    ) fly_ctrl (
     .clk25(clk25),
-    .reset_spider(reset_spider),
-    .spider_x_flat(spider_x_flat),
-    .spider_y_flat(spider_y_flat),
-    .spider_alive_flat(spider_alive_flat)
-);
-
-
-
-/***************************** FLY ******************************/
-// FLY FLATTEN
-// SW9
-// movement
-fly_enemy_controller fly_ctrl (
-    .clk25(clk25),
+    .bullet_x_flat(bullet_x_flat),
+    .bullet_y_flat(bullet_y_flat),
+    .bullet_active_flat(bullet_active_flat),
     .fly_x_flat(fly_x_flat),
     .fly_y_flat(fly_y_flat),
-    .fly_alive_flat(fly_alive_flat)
+    .fly_alive(fly_alive),
+    .fly_hit(fly_hit) // TODO: need to implement hit event
 );
 
-
-
-/***************************** MOSQUITO ******************************/
-// MOSQUITO FLATTEN
-
-// motion controller
-mosquito_motion_controller mosquito_ctrl (
-    .clk25(clk25),
-    .reset_mosquito(reset_mosquito), 
-    .mosquito_x_flat(mosquito_x_flat),
-    .mosquito_y_flat(mosquito_y_flat),
-    .mosquito_alive_flat(mosquito_alive_flat)
+fly_sprite_drawer #(
+    .FLY_COUNT(FLY_COUNT)
+    ) fly_draw (
+    .x(x), .y(y),
+    .fly_x_flat(fly_x_flat),
+    .fly_y_flat(fly_y_flat),
+    .fly_alive(fly_alive),
+    .fly_rgb_final(fly_rgb_final),
+    .fly_any_valid(fly_any_valid)
 );
 
 
@@ -352,25 +214,6 @@ game_bgm bgm_inst(.clk(clk), .reset(buzz_sw), .buzz(buzz_signal));
 assign buzz = buzz_signal;
 
 
-
-/********************************************************************/
-/************************* STAGE CONTROLLER *************************/
-/********************************************************************/
-wire [7:0] seconds;
-wire [22:0] enable_enemy;
-
-game_timer timer_inst (
-    .clk25(clk25),
-    .reset(stage_rst),        // stage_rst = 1 -> timer reset from 0
-    .seconds(seconds)
-);
-
-stage_controller stage_inst (
-    .seconds(seconds),
-    .enable_enemy(enable_enemy)
-);
-
-
     
     
 /********************************************************************/
@@ -378,7 +221,7 @@ stage_controller stage_inst (
 /********************************************************************/
     wire [2:0] final_rgb = user_valid ? user_rgb : // priority user -> bullet -> enemy
                            any_bullet_valid ? bullet_rgb_final : 
-                           any_enemy_valid ? enemy_rgb_final :
+                           fly_any_valid ? fly_rgb_final :
                            3'b000;
                            
     assign vga_r = video_on ? {4{final_rgb[2]}} : 4'b0000;
