@@ -107,6 +107,7 @@ module vga_test(
     // SOUND
     wire buzz_signal;
     wire fire_buzz;
+    wire hit_buzz;
     
 /**************************************************************/
 /************** 100MHz to about 25MHz divider******************/
