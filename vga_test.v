@@ -108,7 +108,14 @@ module vga_test(
     wire buzz_signal;
     wire fire_buzz;
     wire hit_buzz;
-    wire enemy_hit = ((bullet_hit_fly) | (bullet_hit_mosquito) | (bullet_hit_spider));
+    wire enemy_hit = fly_hit;
+ /**************************************************************/   
+// Currently only fly_hit logic is implemented
+// but the final goal is to trigger the sound when any enemy is hit
+// such as a fly, mosquito, or other enemies.
+// When other hit signals are added, this should be updated like:
+// wire enemy_hit = fly_hit | mosquito_hit | spider_hit;
+/**************************************************************/
     
 /**************************************************************/
 /************** 100MHz to about 25MHz divider******************/
