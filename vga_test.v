@@ -108,6 +108,7 @@ module vga_test(
     wire buzz_signal;
     wire fire_buzz;
     wire hit_buzz;
+    wire enemy_hit = ((bullet_hit_fly) | (bullet_hit_mosquito) | (bullet_hit_spider));
     
 /**************************************************************/
 /************** 100MHz to about 25MHz divider******************/
@@ -305,10 +306,14 @@ game_bgm bgm_inst(.clk(clk), .reset(buzz_sw), .buzz(buzz_signal));
 /********************************************************************/
 /****************************** BUZZ _bullet*************************/
 /********************************************************************/
-bullet_sound sound_inst(.clk(clk), .reset(buzz_sw), ,fire(btn_fire), .buzz(fire_buzz);
+bullet_sound sound_inst1(.clk(clk), .reset(buzz_sw), ,fire(btn_fire), .buzz(fire_buzz);
 
-                        
-assign buzz = buzz_signal | fire_buzz;
+/********************************************************************/
+/****************************** BUZZ _hit****************************/
+/********************************************************************/
+hit_sound sound_inst2(.clk(clk), .reset(buzz_sw), .hit(enemy_hit), .buzz(hit_buzz));
+
+assign buzz = buzz_signal | fire_buzz | hit_buzz;
 
 /********************************************************************/
 /************************** VGA OUTPUT ******************************/
