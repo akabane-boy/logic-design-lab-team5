@@ -61,3 +61,25 @@ module fire_sound #(
 
     assign buzz = buzz_reg;
 endmodule
+
+module clock_divider #(
+    parameter div = 49999999
+)(
+    input clk_in,
+    input reset,
+    output reg clk_out
+);
+    reg [25:0] q;
+
+    always @(posedge clk_in) begin
+        if (reset) begin
+            q <= 0;
+            clk_out <= 0;
+        end else if (q == div) begin
+            clk_out <= ~clk_out;
+            q <= 0;
+        end else begin
+            q <= q + 1;
+        end
+    end
+endmodule
