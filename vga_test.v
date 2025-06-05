@@ -109,6 +109,7 @@ module vga_test(
     wire fire_buzz;
     wire hit_buzz;
     wire enemy_hit = fly_hit;
+
  /**************************************************************/   
 // Currently only fly_hit logic is implemented
 // but the final goal is to trigger the sound when any enemy is hit
