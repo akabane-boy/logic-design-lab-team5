@@ -29,8 +29,7 @@ module vga_test(
     input reset_spider, reset_fly, reset_mosquito, // for test
     output [3:0] vga_r, vga_g, vga_b,
     output hsync, vsync, 
-    output buzz,
-    output [7:0] led
+    output buzz
 );
 
 /********************************************************************/
@@ -105,10 +104,8 @@ module vga_test(
     wire [BULLET_COUNT-1:0] bullet_hit_spider;
 
     // SOUND
-    wire buzz_signal;
     wire fire_buzz;
-    wire hit_buzz;
-    wire enemy_hit = fly_hit;
+    
 
  /**************************************************************/   
 // Currently only fly_hit logic is implemented
@@ -309,19 +306,17 @@ spider_sprite_drawer spider_draw (
 /********************************************************************/
 /****************************** BUZZ _bgm****************************/
 /********************************************************************/
-game_bgm bgm_inst(.clk(clk), .reset(buzz_sw), .buzz(buzz_signal));
 
 /********************************************************************/
 /****************************** BUZZ _bullet*************************/
 /********************************************************************/
-bullet_sound sound_inst1(.clk(clk), .reset(buzz_sw), ,fire(btn_fire), .buzz(fire_buzz);
+fire_sound sound_inst1(.clk(clk), .reset(buzz_sw), .fire(btn_fire), .buzz(fire_buzz));
 
 /********************************************************************/
 /****************************** BUZZ _hit****************************/
 /********************************************************************/
-hit_sound sound_inst2(.clk(clk), .reset(buzz_sw), .hit(enemy_hit), .buzz(hit_buzz));
 
-assign buzz = buzz_signal | fire_buzz | hit_buzz;
+assign buzz = fire_buzz;
 
 /********************************************************************/
 /************************** VGA OUTPUT ******************************/
@@ -338,10 +333,10 @@ assign buzz = buzz_signal | fire_buzz | hit_buzz;
     assign vga_b = video_on ? {4{final_rgb[0]}} : 4'b0000;
     
     // for debugging
-    assign led[1:0] = stage_state; // 00: INIT, 01: NORMAL, 10: BOSS, 11: CLEAR
-    assign led[2] = (fly_alive == {FLY_COUNT{1'b0}});
-    assign led[3] = (mosquito_alive == {MOSQUITO_COUNT{1'b0}});
-    assign led[4] = spider_alive;
+    //assign led[1:0] = stage_state; // 00: INIT, 01: NORMAL, 10: BOSS, 11: CLEAR
+    //assign led[2] = (fly_alive == {FLY_COUNT{1'b0}});
+    //assign led[3] = (mosquito_alive == {MOSQUITO_COUNT{1'b0}});
+    //assign led[4] = spider_alive;
 
     
 endmodule
