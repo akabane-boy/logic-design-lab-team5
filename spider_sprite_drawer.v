@@ -12,7 +12,7 @@ module spider_sprite_drawer (
     wire [2:0] sprite_rgb;
     wire sprite_valid;
 
-    color_sprite_32 #(.MEM_FILE("spider_sprite_data.mem")) sprite (
+    color_sprite_64 #(.MEM_FILE("spider_sprite_data.mem")) sprite (
         .x(x), .y(y),
         .sprite_x(spider_x),
         .sprite_y(spider_y),

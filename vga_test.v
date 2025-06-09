@@ -105,7 +105,10 @@ module vga_test(
 
     // SOUND
     wire fire_buzz;
-    
+
+    // STAR
+    wire [2:0] star_rgb; 
+    wire star_on;
 
  /**************************************************************/   
 // Currently only fly_hit logic is implemented
@@ -304,13 +307,27 @@ spider_sprite_drawer spider_draw (
 );
 
 /********************************************************************/
+/************************* STAR (background) ************************/
+/********************************************************************/
+star_controller star_bg (
+    .clk25(clk25),
+    .x(x),
+    .y(y),
+    .star_rgb(star_rgb),
+    .star_on(star_on)
+);
+
+
+
+
+/********************************************************************/
 /****************************** BUZZ _bgm****************************/
 /********************************************************************/
 
 /********************************************************************/
 /****************************** BUZZ _bullet*************************/
 /********************************************************************/
-hit_sound sound_inst1(.clk(clk), .reset(buzz_sw), .fire(btn_fire), .buzz(fire_buzz));
+fire_sound sound_inst1(.clk(clk), .reset(buzz_sw), .fire(btn_fire), .buzz(fire_buzz));
 
 /********************************************************************/
 /****************************** BUZZ _hit****************************/
@@ -326,7 +343,12 @@ assign buzz = fire_buzz;
                            spider_valid ? spider_rgb :
                            mosquito_any_valid ? mosquito_rgb_final :
                            fly_any_valid ? fly_rgb_final :
+                           star_on ? star_rgb :
                            3'b000;
+
+
+                           
+//assign final_rgb = star_on ? star_rgb : sprite_rgb;
                            
     assign vga_r = video_on ? {4{final_rgb[2]}} : 4'b0000;
     assign vga_g = video_on ? {4{final_rgb[1]}} : 4'b0000;

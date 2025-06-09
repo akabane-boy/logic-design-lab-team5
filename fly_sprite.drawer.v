@@ -28,7 +28,7 @@ module fly_sprite_drawer #(
 
     generate
         for (i = 0; i < FLY_COUNT; i = i + 1) begin : draw
-            color_sprite_32 #(.MEM_FILE("enemy_sprite_data.mem")) sprite (
+            color_sprite_32 #(.MEM_FILE("fly_sprite_data.mem")) sprite (
                 .x(x), .y(y),
                 .sprite_x(fly_x[i]),
                 .sprite_y(fly_y[i]),

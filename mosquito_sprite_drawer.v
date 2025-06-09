@@ -28,7 +28,7 @@ module mosquito_sprite_drawer #(
 
     generate
         for (i = 0; i < MOSQUITO_COUNT; i = i + 1) begin : draw
-            color_sprite_32 #(.MEM_FILE("enemy_sprite_data.mem")) sprite (
+            color_sprite_32 #(.MEM_FILE("mosquito_sprite_data.mem")) sprite (
                 .x(x), .y(y),
                 .sprite_x(mosquito_x[i]),
                 .sprite_y(mosquito_y[i]),

@@ -37,7 +37,7 @@ module spider_enemy_controller (
             // spider not yet spawned
             // INITIAL condition
             spider_x <= 320;
-            spider_y <= 50;
+            spider_y <= 0;
             spider_alive <= 0;
             spider_hp <= 0;
             move_counter <= 0;
@@ -48,7 +48,7 @@ module spider_enemy_controller (
             spider_alive <= 1;
             spider_hp <= 10;
             spider_x <= 320;
-            spider_y <= 50;
+            spider_y <= 0;
             move_counter <= 0;
             move_dir <= 1;
         end
