@@ -3,9 +3,6 @@ Term Project for SKKU Logic Design Lab ICE2005 (Galaga style game) 2025-1
 
 A simplified **Galaga-style shooting game** designed and implemented using **Verilog HDL** on an **FPGA development board**.
 
-## TODO
- - BOSS(spider) 정확히 10번 맞고 죽는거로 수정해야함. 현재 5~6대 맞으면 죽음. 아마 픽셀 두개 정도 피격 판정되버린 것으로 예상함.
-
 ## Contribution (for report)
 - 그래픽 및 사운드 담당자: 박지훈
 - 로직 담당자: 유호선
@@ -17,6 +14,7 @@ A simplified **Galaga-style shooting game** designed and implemented using **Ver
 (vga_test.v, vga_controller.v, user_controller.v)
 
 파트 분배
+
 ### 6/2
 박지훈: color_sprite8.v, color_sprite16.v, color_sprite32.v, *.mem 및 game_bgm.v파일 작성
 
@@ -27,7 +25,7 @@ A simplified **Galaga-style shooting game** designed and implemented using **Ver
 ### 6/9
 박지훈: fly_sprite_drawer.v, mosquito_sprite_drawer.v, spider_sprite_drawer.v, bullet_sound.v, hit_sound.v 작성
 
-유호선: stage_controller.v 작성
+유호선: stage_controller.v, star_controller.v 작성
 
 김범수: vga_test.v 및 vga 출력, 파일 통합 및 작동 확인 후 피드백
 
@@ -102,20 +100,7 @@ A simplified **Galaga-style shooting game** designed and implemented using **Ver
 
 ---
 
-## 📂 Project Structure
-Not yet.
 
-
----
-
-## 🤝 Team Members
-
-- `@akabane-boy` (e.g., system integration, VGA display)
-- `@nanhosun` (e.g., player & bullet logic)
-- `@another-id` (e.g., enemy behavior, sound effects)
-
-
----
 ## Weekly report (for attendance check)
 •Report project status within 1 pages 
 •Upload i-Campus / Individual submission
