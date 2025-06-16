@@ -69,7 +69,7 @@ module spider_enemy_controller (
                     move_dir <= 0;
             end
 
-            // collision
+            // COLLISION
             for (i = 0; i < 8; i = i + 1) begin
                 if (bullet_active[i] &&
                     bullet_x[i] + 8 >= spider_x &&

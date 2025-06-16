@@ -38,6 +38,9 @@ module vga_test(
     // GENERAL
     integer j, k;
     genvar b, i;
+    parameter BULLET_COUNT = 15; // maximum number of bullets in screen
+    parameter FLY_COUNT = 6;
+    parameter MOSQUITO_COUNT = 12;
 
     // vga controller
     wire [9:0] x, y; // pixels
@@ -54,7 +57,6 @@ module vga_test(
     wire [9:0] user_y;
 
     // BULLET CONTROLLER
-    parameter BULLET_COUNT = 15; // maximum number of bullets in screen
     wire [9:0] bullet_x[0:BULLET_COUNT-1];
     wire [9:0] bullet_y[0:BULLET_COUNT-1];
     wire bullet_active [0:BULLET_COUNT-1];
@@ -79,7 +81,6 @@ module vga_test(
     wire reset_all;
 
     // FLY
-    parameter FLY_COUNT = 8;
     wire [10*FLY_COUNT-1:0] fly_x_flat, fly_y_flat;
     wire [FLY_COUNT-1:0] fly_alive;
     wire [2:0] fly_rgb_final;
@@ -89,7 +90,6 @@ module vga_test(
     wire [BULLET_COUNT-1:0] bullet_hit_fly;
 
     // MOSQUITO
-    parameter MOSQUITO_COUNT = 12;
     wire [10*MOSQUITO_COUNT-1:0] mosquito_x_flat, mosquito_y_flat;
     wire [MOSQUITO_COUNT-1:0] mosquito_alive;
     wire [2:0] mosquito_rgb_final;

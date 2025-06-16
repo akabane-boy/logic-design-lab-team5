@@ -2,7 +2,7 @@
 
 module stage_controller #(
     parameter FLY_COUNT = 4,
-    parameter MOSQUITO_COUNT = 12
+    parameter MOSQUITO_COUNT = 12 // default
 )(
     input clk25,
     input [FLY_COUNT-1:0] fly_alive,          // condition of each fly
@@ -27,7 +27,7 @@ reg spider_started; // for 1 tick delay at entering STAGE_BOSS
 always @(posedge clk25) begin
     case (stage_state)
         STAGE_INIT: begin
-            // do nothing -> go to STAGE_NORMAL
+            // RESET -> GO TO STAGE_NORMAL
             stage_state <= STAGE_NORMAL;
             spider_started <= 0; // reset delay variable
             reset_all <= 0;

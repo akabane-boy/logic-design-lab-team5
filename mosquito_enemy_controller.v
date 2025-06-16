@@ -26,6 +26,7 @@ module mosquito_enemy_controller #(
 
     reg [19:0] move_counter = 0;
 
+    // flat -> array
     always @(*) begin
         for (j = 0; j < 8; j = j + 1) begin
             bullet_x[j] = bullet_x_flat[j*10 +: 10];

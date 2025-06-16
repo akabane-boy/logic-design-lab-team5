@@ -23,6 +23,7 @@ module fly_enemy_controller #(
     reg [19:0] move_counter = 0;
     reg [FLY_COUNT-1:0] prev_alive; // for comparing prev and curr
 
+    // flat -> array
     always @(*) begin
         for (j = 0; j < 8; j = j + 1) begin
             bullet_x[j] = bullet_x_flat[j*10 +: 10];
@@ -33,21 +34,21 @@ module fly_enemy_controller #(
 
     // movement & hit
     always @(posedge clk25) begin
-        if (reset) begin 
+        if (reset) begin  // initial
             move_counter <= 0;
             bullet_hit <= 0;
             fly_hit <= 0;
             for (i = 0; i < FLY_COUNT; i = i + 1) begin
-                fly_x_flat[i*10 +: 10] <= 200 + i * 50;
+                fly_x_flat[i*10 +: 10] <= 150 + i * 60; // INITIAL POSITION
                 fly_y_flat[i*10 +: 10] <= 0;
                 fly_alive[i] <= 1;
                 fly_hit[i] <= 0;
             end
             prev_alive <= {FLY_COUNT{1'b1}};
         end else begin
-            move_counter <= move_counter + 1;
+            move_counter <= move_counter + 1; // turn on
 
-            fly_hit <= 0;
+            fly_hit <= 0; // reset due to entering new stages
             bullet_hit <= 0;
             
             if (move_counter[19]) begin
@@ -61,7 +62,7 @@ module fly_enemy_controller #(
 
                         // hit logic
                         for (j = 0; j < 8; j = j + 1) begin
-                            if (bullet_active[j]) begin
+                            if (bullet_active[j]) begin // bullet active && bullet meets enemy
                                 if (bullet_x[j] >= fly_x_flat[i*10 +: 10] &&
                                     bullet_x[j] <  fly_x_flat[i*10 +: 10] + 32 &&
                                     bullet_y[j] >= fly_y_flat[i*10 +: 10] &&
@@ -82,7 +83,7 @@ module fly_enemy_controller #(
                 end
             end
 
-        // save to prev
+        // save to prev: for edge-detecting
         prev_alive <= fly_alive;
         end
     end

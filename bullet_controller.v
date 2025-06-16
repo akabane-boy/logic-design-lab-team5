@@ -37,9 +37,9 @@ reg prev_fire = 0;
 integer i;
 
 always @(posedge clk25) begin
-    prev_fire <= btn_fire;
+    prev_fire <= btn_fire; // for edge-detecting: fire only 1 clk where btn_fire 0 -> 1
 
-    // Fire bullet
+    // Fire bullet: make bullet[i] active
     if (btn_fire && !prev_fire) begin : fire_loop
         for (i = 0; i < BULLET_COUNT; i = i + 1) begin
             if (!bullet_active_flat[i]) begin
@@ -64,10 +64,10 @@ always @(posedge clk25) begin
         bullet_timer <= 0;
         for (i = 0; i < BULLET_COUNT; i = i + 1) begin
             if (bullet_active_flat[i]) begin
-                if (bullet_y_flat[i*10 +: 10] == 0)
+                if (bullet_y_flat[i*10 +: 10] == 0) // turn off bullet when y=0
                     bullet_active_flat[i] <= 0;
                 else
-                    bullet_y_flat[i*10 +: 10] <= bullet_y_flat[i*10 +: 10] - 1;
+                    bullet_y_flat[i*10 +: 10] <= bullet_y_flat[i*10 +: 10] - 1; // move upward
             end
         end
     end

@@ -29,7 +29,27 @@ A simplified **Galaga-style shooting game** designed and implemented using **Ver
 
 김범수: vga_test.v 및 vga 출력, 파일 통합 및 작동 확인 후 피드백
 
+## 완료한 것들
+### ✅ Term Project Requirements (Mandatory)
 
+- Player can move horizontally (controlled by push buttons or DIP switches).
+- Player can fire bullets.
+- Enemies appear and move (simple downward or patterned movement).
+- Bullets can hit and eliminate enemies.
+- One player, one type of enemy, and a single bullet instance.
+
+### ⭐ Bonus Credits (Optional)
+
+- Graphic Quality
+- Player can move vertically or diagonally
+- Multiple enemy/bullet types or movement patterns
+- Multiple game stages or boss enemies
+- Basic sound effects (using buzzer)
+
+ ## 완료 못한 것들
+
+- Score display (using 7-segment LEDs or VGA text rendering)
+- Two or multi player mode
 
 ## 📺 Display
 
