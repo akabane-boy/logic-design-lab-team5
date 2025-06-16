@@ -21,7 +21,7 @@
 
 
 module vga_test(
-    input clk,                         // 100 MHz
+    input clk, // 100 MHz
     input btn_right, btn_left, btn_up, btn_down, // button for move
     input btn_fire, // button for bullets
     input buzz_sw, // on/off buzz
