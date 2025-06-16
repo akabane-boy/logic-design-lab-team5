@@ -54,7 +54,7 @@ module vga_test(
     wire [9:0] user_y;
 
     // BULLET CONTROLLER
-    parameter BULLET_COUNT = 8; // maximum number of bullets in screen
+    parameter BULLET_COUNT = 15; // maximum number of bullets in screen
     wire [9:0] bullet_x[0:BULLET_COUNT-1];
     wire [9:0] bullet_y[0:BULLET_COUNT-1];
     wire bullet_active [0:BULLET_COUNT-1];
@@ -79,7 +79,7 @@ module vga_test(
     wire reset_all;
 
     // FLY
-    parameter FLY_COUNT = 4;
+    parameter FLY_COUNT = 8;
     wire [10*FLY_COUNT-1:0] fly_x_flat, fly_y_flat;
     wire [FLY_COUNT-1:0] fly_alive;
     wire [2:0] fly_rgb_final;
@@ -89,7 +89,7 @@ module vga_test(
     wire [BULLET_COUNT-1:0] bullet_hit_fly;
 
     // MOSQUITO
-    parameter MOSQUITO_COUNT = 8;
+    parameter MOSQUITO_COUNT = 12;
     wire [10*MOSQUITO_COUNT-1:0] mosquito_x_flat, mosquito_y_flat;
     wire [MOSQUITO_COUNT-1:0] mosquito_alive;
     wire [2:0] mosquito_rgb_final;
@@ -110,13 +110,6 @@ module vga_test(
     wire [2:0] star_rgb; 
     wire star_on;
 
- /**************************************************************/   
-// Currently only fly_hit logic is implemented
-// but the final goal is to trigger the sound when any enemy is hit
-// such as a fly, mosquito, or other enemies.
-// When other hit signals are added, this should be updated like:
-// wire enemy_hit = fly_hit | mosquito_hit | spider_hit;
-/**************************************************************/
     
 /**************************************************************/
 /************** 100MHz to about 25MHz divider******************/
@@ -163,6 +156,7 @@ module vga_test(
     .bullet_active_flat(bullet_active_flat)
     );
 
+    // create multi-instance
     generate
         for (b = 0; b < BULLET_COUNT; b = b + 1) begin : bullet_unpack
             assign bullet_x[b] = bullet_x_flat[b*10 +: 10];
@@ -318,27 +312,19 @@ star_controller star_bg (
 );
 
 
-
-
 /********************************************************************/
-/****************************** BUZZ _bgm****************************/
-/********************************************************************/
-
-/********************************************************************/
-/****************************** BUZZ _bullet*************************/
+/****************************** BUZZ FIRE ***************************/
 /********************************************************************/
 fire_sound sound_inst1(.clk(clk), .reset(buzz_sw), .fire(btn_fire), .buzz(fire_buzz));
-
-/********************************************************************/
-/****************************** BUZZ _hit****************************/
-/********************************************************************/
 
 assign buzz = fire_buzz;
 
 /********************************************************************/
 /************************** VGA OUTPUT ******************************/
 /********************************************************************/
-    wire [2:0] final_rgb = user_valid ? user_rgb : // priority user -> bullet -> enemy
+
+// PRIORITY: user -> bullet -> spider -> mosquito -> fly -> star -> 000
+    wire [2:0] final_rgb = user_valid ? user_rgb :
                            any_bullet_valid ? bullet_rgb_final : 
                            spider_valid ? spider_rgb :
                            mosquito_any_valid ? mosquito_rgb_final :
@@ -346,10 +332,8 @@ assign buzz = fire_buzz;
                            star_on ? star_rgb :
                            3'b000;
 
-
                            
-//assign final_rgb = star_on ? star_rgb : sprite_rgb;
-                           
+    // FINAL OUTPUT TO VGA
     assign vga_r = video_on ? {4{final_rgb[2]}} : 4'b0000;
     assign vga_g = video_on ? {4{final_rgb[1]}} : 4'b0000;
     assign vga_b = video_on ? {4{final_rgb[0]}} : 4'b0000;
